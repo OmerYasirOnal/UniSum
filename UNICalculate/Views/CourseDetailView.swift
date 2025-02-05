@@ -44,7 +44,6 @@ struct CourseDetailView: View {
             }
         }
         .navigationTitle(course.name)
-        .toolbar { toolbarContent }
         .onAppear { setupView() }
         .onChange(of: gradeViewModel.grades) { _ in updateAverageAndGrade() }
         .alert("Delete Grade", isPresented: $showingDeleteConfirmation) {
@@ -113,10 +112,24 @@ struct CourseDetailView: View {
                 gradesListView
             }
         } header: {
-            gradesHeaderView
+            HStack {
+                Text("Grades")
+                Spacer()
+                Text("Remaining: \(gradeViewModel.remainingWeight(forCourse: course.id), specifier: "%.0f")%")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.trailing, 8)
+                Button {
+                    activeSheet = .addGrade
+                } label: {
+                    Image(systemName: "plus.circle.fill")  // plus yerine plus.circle.fill kullanıyoruz
+                        .font(.system(size: 22))  // boyutu 14'ten 22'ye çıkardık
+                        .foregroundColor(.blue)
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
-    
     private var emptyGradesView: some View {
         Text("No grades yet")
             .foregroundColor(.secondary)

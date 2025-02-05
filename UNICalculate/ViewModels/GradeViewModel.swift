@@ -1,13 +1,23 @@
 import SwiftUI
+import Combine
+import Foundation
 
 class GradeViewModel: ObservableObject {
     @Published var grades: [Grade] = []
     @Published var errorMessage: String?
     
     private let networkManager = NetworkManager.shared
+    private var cancellables = Set<AnyCancellable>()
     
-    
-    // GradeViewModel.swift
+    // Performans optimizasyonu için debounce ekleyelim
+    private func debouncedUpdateCourseAverage(courseId: Int) {
+        Just(())
+            .delay(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateCourseAverage(courseId: courseId)
+            }
+            .store(in: &cancellables)
+    }    // GradeViewModel.swift
     // Güncellenmiş remainingWeight fonksiyonu
     // Toplam ağırlık hesaplama (belirli bir notu hariç tutarak)
     func totalWeight(forCourse courseId: Int, excluding gradeId: Int? = nil) -> Double {
@@ -86,22 +96,13 @@ class GradeViewModel: ObservableObject {
     func calculateAverage() -> Double {
         guard !grades.isEmpty else { return 0.0 }
         
-        var totalWeightedScore = 0.0
-        var totalWeight = 0.0
+        let totalWeightedScore = grades.reduce(0.0) { $0 + ($1.score * ($1.weight / 100.0)) }
+        let totalWeight = grades.reduce(0.0) { $0 + $1.weight }
         
-        for grade in grades {
-            totalWeightedScore += grade.score * (grade.weight / 100.0)
-            totalWeight += grade.weight
-        }
+        guard totalWeight > 0 else { return 0.0 }
         
-        // Ağırlıkları normalize et
-        if totalWeight > 0 {
-            let normalizedAverage = totalWeightedScore * (100.0 / totalWeight)
-            print("📊 Calculated Average: \(normalizedAverage) (Total Weight: \(totalWeight))")
-            return normalizedAverage
-        }
-        
-        return 0.0
+        let normalizedAverage = totalWeightedScore * (100.0 / totalWeight)
+        return normalizedAverage
     }
     
     // MARK: - Update Course Average
