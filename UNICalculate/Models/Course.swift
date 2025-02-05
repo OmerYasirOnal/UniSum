@@ -1,6 +1,6 @@
 import Foundation
 
-struct Course: Codable, Identifiable {
+struct Course: Codable, Identifiable, Equatable {
     let id: Int
     let termId: Int
     let userId: Int

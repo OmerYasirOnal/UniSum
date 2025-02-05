@@ -1,23 +1,27 @@
 import SwiftUI
 
 struct AddCourseView: View {
-    // MARK: - Properties
     @Binding var isPresented: Bool
-    @ObservedObject var courseViewModel: CourseViewModel
+        @Binding var selectedCourse: Course?  // Yeni sıralama
+        @ObservedObject var courseViewModel: CourseViewModel
+        let termId: Int
+        let userId: Int
+    // MARK: - Properties
+  
     @State private var courseName: String = ""
     @State private var credits: String = ""
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     @State private var keyboardHeight: CGFloat = 0
     @FocusState private var focusedField: Field?
+
     private let keyboardPadding: CGFloat = 100
     
     enum Field {
         case courseName, credits
     }
     
-    let termId: Int
-    let userId: Int
+
     
     // MARK: - Body
     var body: some View {
@@ -178,34 +182,37 @@ struct AddCourseView: View {
     }
     
     private func saveCourse() {
-        guard let creditsValue = Double(credits) else {
-            errorMessage = "invalid_credits"
-            return
-        }
-        
-        guard creditsValue <= 30 else {
-            errorMessage = "credits_too_high"
-            return
-        }
-        
-        isLoading = true
-        errorMessage = nil
-        
-        courseViewModel.addCourse(
-            termId: termId,
-            userId: userId,
-            name: courseName.trimmingCharacters(in: .whitespacesAndNewlines),
-            credits: creditsValue
-        ) { success in
-            isLoading = false
-            if success {
-                courseViewModel.fetchCourses(for: termId)
-                isPresented = false
-            } else {
-                errorMessage = "course_add_error"
+            guard let creditsValue = Double(credits) else {
+                errorMessage = "invalid_credits"
+                return
+            }
+            
+            guard creditsValue <= 30 else {
+                errorMessage = "credits_too_high"
+                return
+            }
+            
+            isLoading = true
+            errorMessage = nil
+            
+            courseViewModel.addCourse(
+                termId: termId,
+                userId: userId,
+                name: courseName.trimmingCharacters(in: .whitespacesAndNewlines),
+                credits: creditsValue
+            ) { [self] success in
+                isLoading = false
+                if success {
+                    if let newCourse = courseViewModel.courses.last {
+                        selectedCourse = newCourse  // Set the selected course
+                    }
+                    courseViewModel.fetchCourses(for: termId)
+                    isPresented = false
+                } else {
+                    errorMessage = "course_add_error"
+                }
             }
         }
-    }
     
     // MARK: - Keyboard Management
     private func setupKeyboardNotifications() {
