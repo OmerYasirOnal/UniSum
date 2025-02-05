@@ -1,0 +1,78 @@
+/*
+  Localizable.strings
+  UNICalculate
+
+  Created by Yasir on 30.01.2025.
+*/
+
+/* Genel */
+"welcome_back" = "Welcome Back!";
+"welcome" = "Welcome!";
+"login" = "Login";
+"signup" = "Sign Up";
+"create_account" = "Create Account";
+"no_account" = "Don't have an account?";
+"email" = "Email";
+"password" = "Password";
+"university" = "University";
+"department" = "Department";
+"profile" = "Profile";
+"logout" = "Logout";
+"menu" = "Menu";
+"back" = "Back";
+
+/* Dönem ve Dersler */
+"terms" = "Terms";
+"your_terms" = "Your Terms";
+"no_terms_available" = "No Terms Available";
+"add_new_term" = "Add New Term";
+"term_number" = "Term:";
+"term" = "Term";
+"term_1" = "1st Term";
+"term_2" = "2nd Term";
+
+"courses" = "Courses";
+"course_list" = "Courses";
+"no_courses" = "Empty";
+"add_new_course" = "Add New Course";
+
+/* Sınıf Seviyeleri */
+"class_level" = "Class Level";
+"class_level_pre" = "Preparatory";
+"class_level_1" = "1st Year";
+"class_level_2" = "2nd Year";
+"class_level_3" = "3rd Year";
+"class_level_4" = "4th Year";
+"add_course" = "Add Course";
+"course_name" = "Course Name";
+"credits" = "Credits";
+"save" = "Save";
+"invalid_credits" = "Invalid credits value";
+"course_add_error" = "Failed to add course";
+/* Ayarlar */
+"settings" = "Settings";
+"language" = "Language";
+"select_language" = "Select Language";
+"appearance" = "Appearance";
+"theme" = "Theme";
+
+/* Not Düzenleme */
+"select_class" = "Select Class";
+"select_term" = "Select Term";
+"edit_grades" = "Edit Grade Scale";
+"save" = "Save";
+
+/* Hata Mesajları */
+"error_invalid_credentials" = "Invalid email or password";
+"error_email_exists" = "Email already exists";
+"error_no_connection" = "Could not connect to server";
+"error_session_expired" = "Session expired. Please login again";
+"error_invalid_input" = "Please check your input";
+"error_unknown" = "An unknown error occurred";
+
+"error_email_required" = "Email is required";
+"error_invalid_email_format" = "Please enter a valid email address";
+"error_password_required" = "Password is required";
+"error_password_too_short" = "Password must be at least 6 characters";
+"error_university_required" = "University name is required";
+"error_department_required" = "Department name is required";

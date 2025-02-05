@@ -1,0 +1,83 @@
+/*
+  Localizable.strings
+  UNICalculate
+
+  Created by Yasir on 30.01.2025.
+*/
+
+/* Genel */
+"welcome" = "Hoş Geldiniz!";
+"welcome_back" = "Hoş Geldiniz!";
+"login" = "Giriş Yap";
+"signup" = "Kayıt Ol";
+"email" = "E-posta";
+"password" = "Şifre";
+"no_account" = "Hesabın yok mu?";
+"university" = "Üniversite";
+"department" = "Bölüm";
+"terms" = "Dönemler";
+"courses" = "Dersler";
+"profile" = "Profil";
+"logout" = "Çıkış Yap";
+"settings" = "Ayarlar";
+"language" = "Dil";
+"select_language" = "Dil Seç";
+"appearance" = "Görünüm";
+"theme" = "Tema";
+"menu" = "Menü";
+"save" = "Kaydet";
+"cancel" = "İptal";
+"create_account" = "Hesap Oluştur";
+"email" = "E-posta";
+"department" = "Bölüm";
+"back" = "Geri";
+"add_course" = "Ders Ekle";
+"course_name" = "Ders Adı";
+"credits" = "Kredi";
+"save" = "Kaydet";
+"invalid_credits" = "Geçersiz kredi değeri";
+"course_add_error" = "Ders eklenemedi";
+/* AddTermView */
+"add_new_term" = "Yeni Dönem Ekle";
+"select_class_level" = "Sınıf Seviyesi";
+"select_term_number" = "Dönem Seçiniz";
+"preparatory_class" = "Hazırlık";
+"first_year" = "1. Sınıf";
+"second_year" = "2. Sınıf";
+"third_year" = "3. Sınıf";
+"fourth_year" = "4. Sınıf";
+"first_term" = "1. Dönem";
+"second_term" = "2. Dönem";
+
+/* TermListView */
+"no_terms_available" = "Mevcut dönem bulunmuyor";
+"your_terms" = "Dönemleriniz";
+"term_number" = "Dönem:";
+"class_level_pre" = "Hazırlık";
+"class_level_1" = "1. Sınıf";
+"class_level_2" = "2. Sınıf";
+"class_level_3" = "3. Sınıf";
+"class_level_4" = "4. Sınıf";
+"class_level" = "Sınıf Seviyesi";
+"term" = "Dönem";
+
+/* CourseListView */
+"course_list" = "Dersler";
+"no_courses" = "Boş";
+
+/* Hata Mesajları */
+"error_invalid_credentials" = "Geçersiz e-posta veya şifre";
+"error_email_exists" = "Bu e-posta adresi zaten kayıtlı";
+"error_no_connection" = "Sunucuya bağlanılamadı";
+"error_session_expired" = "Oturum süresi doldu. Lütfen tekrar giriş yapın";
+"error_invalid_input" = "Lütfen girdiğiniz bilgileri kontrol edin";
+"error_unknown" = "Bilinmeyen bir hata oluştu";
+"error_email_required" = "E-posta adresi zorunludur";
+"error_invalid_email_format" = "Geçerli bir e-posta adresi giriniz";
+"error_password_required" = "Şifre zorunludur";
+"error_password_too_short" = "Şifre en az 6 karakter olmalıdır";
+"error_university_required" = "Üniversite adı zorunludur";
+"error_department_required" = "Bölüm adı zorunludur";
+/* Term Bilgileri */
+"term_1" = "1. Dönem";
+"term_2" = "2. Dönem";
