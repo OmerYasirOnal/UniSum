@@ -7,7 +7,6 @@ struct TermListView: View {
     @State private var isSidebarVisible = false
     @State private var isAddTermViewVisible = false
     @State private var navigationPath = NavigationPath()
-    @State private var isEditing = false
     @Environment(\.colorScheme) var colorScheme
     
     // MARK: - Body
@@ -32,7 +31,7 @@ struct TermListView: View {
     
     // MARK: - Main Content
     private var mainContent: some View {
-        ZStack {
+        VStack {
             contentView
             addButton
         }
@@ -85,16 +84,7 @@ struct TermListView: View {
         }
     }
     
-    private var editButton: some View {
-        Group {
-            if !isSidebarVisible {
-                Button(action: toggleEditing) {
-                    Text(isEditing ? "Bitti" : "Düzenle")
-                        .bold()
-                }
-            }
-        }
-    }
+    
     
     // MARK: - Term List
     private var termListView: some View {
@@ -175,22 +165,13 @@ struct TermListView: View {
     }
     
     private var addButton: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button(action: showAddTermPanel) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 40))
-                        .foregroundColor(.white)
-                        .frame(width: 60, height: 60)
-                        .background(Circle().fill(Color.accentColor))
-                        .shadow(radius: 5)
-                }
-                .padding(.trailing, 20)
-                .padding(.bottom, 30)
-            }
+        Button(action: showAddTermPanel) {
+            Image(systemName: "plus.circle.fill")
+                .resizable()
+                .frame(width: 60, height: 60)
+                .foregroundColor(.accentColor)
         }
+        .padding(.bottom, 30)
     }
     
     // MARK: - Sidebar Overlay
@@ -228,11 +209,7 @@ struct TermListView: View {
         }
     }
     
-    private func toggleEditing() {
-        withAnimation {
-            isEditing.toggle()
-        }
-    }
+    
     
     private func showAddTermPanel() {
         withAnimation(.spring()) {
