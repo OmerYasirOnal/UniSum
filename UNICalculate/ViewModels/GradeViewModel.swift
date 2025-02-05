@@ -99,10 +99,9 @@ class GradeViewModel: ObservableObject {
         let totalWeightedScore = grades.reduce(0.0) { $0 + ($1.score * ($1.weight / 100.0)) }
         let totalWeight = grades.reduce(0.0) { $0 + $1.weight }
         
-        guard totalWeight > 0 else { return 0.0 }
-        
-        let normalizedAverage = totalWeightedScore * (100.0 / totalWeight)
-        return normalizedAverage
+        // Önemli değişiklik burada: Artık 100'e göre normalize etmiyoruz
+        // Sadece toplam ağırlığa göre hesaplıyoruz
+        return totalWeightedScore
     }
     
     // MARK: - Update Course Average

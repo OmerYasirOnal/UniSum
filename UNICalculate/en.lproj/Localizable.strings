@@ -1,11 +1,5 @@
-/*
-  Localizable.strings
-  UNICalculate
-
-  Created by Yasir on 30.01.2025.
-*/
-
-/* Genel */
+// Localizable.strings (English)
+/* General */
 "welcome_back" = "Welcome Back!";
 "welcome" = "Welcome!";
 "login" = "Login";
@@ -20,8 +14,14 @@
 "logout" = "Logout";
 "menu" = "Menu";
 "back" = "Back";
+"cancel" = "Cancel";
+"save" = "Save";
+"edit" = "Edit";
+"delete" = "Delete";
+"ok" = "OK";
+"done" = "Done";
 
-/* Dönem ve Dersler */
+/* Terms and Courses */
 "terms" = "Terms";
 "your_terms" = "Your Terms";
 "no_terms_available" = "No Terms Available";
@@ -35,47 +35,50 @@
 "course_list" = "Courses";
 "no_courses" = "Empty";
 "add_new_course" = "Add New Course";
+"course_name" = "Course Name";
+"credits" = "Credits";
 
-/* Sınıf Seviyeleri */
+/* Class Levels */
 "class_level" = "Class Level";
 "class_level_pre" = "Preparatory";
 "class_level_1" = "1st Year";
 "class_level_2" = "2nd Year";
 "class_level_3" = "3rd Year";
 "class_level_4" = "4th Year";
+
+/* Grade Management */
 "add_course" = "Add Course";
-"course_name" = "Course Name";
-"credits" = "Credits";
-"save" = "Save";
-"invalid_credits" = "Invalid credits value";
-"course_add_error" = "Failed to add course";
-/* Ayarlar */
+"grade_type" = "Grade Type";
+"select_type" = "Select Type";
+"enter_custom_type" = "Enter Custom Type";
+"score" = "Score";
+"select_score" = "Select Score";
+"weight" = "Weight";
+"select_weight" = "Select Weight";
+"score_and_weight" = "Score and Weight";
+"available_weight" = "Available weight: %d%%";
+"remaining_weight" = "Remaining: %d%%";
+
+/* Settings */
 "settings" = "Settings";
 "language" = "Language";
 "select_language" = "Select Language";
 "appearance" = "Appearance";
 "theme" = "Theme";
 
-/* Not Düzenleme */
-"select_class" = "Select Class";
-"select_term" = "Select Term";
-"edit_grades" = "Edit Grade Scale";
-"save" = "Save";
-
-/* Hata Mesajları */
+/* Error Messages */
 "error_invalid_credentials" = "Invalid email or password";
 "error_email_exists" = "Email already exists";
 "error_no_connection" = "Could not connect to server";
 "error_session_expired" = "Session expired. Please login again";
 "error_invalid_input" = "Please check your input";
 "error_unknown" = "An unknown error occurred";
-
 "error_email_required" = "Email is required";
 "error_invalid_email_format" = "Please enter a valid email address";
 "error_password_required" = "Password is required";
 "error_password_too_short" = "Password must be at least 6 characters";
 "error_university_required" = "University name is required";
 "error_department_required" = "Department name is required";
-
-// Localizable.strings (en)
-"error_session_expired" = "Your session has expired. Please log in again.";
+"invalid_credits" = "Invalid credits value";
+"course_add_error" = "Failed to add course";
+"weight_exceed_error" = "Total weight cannot exceed 100%%. Available weight: %d%%";
