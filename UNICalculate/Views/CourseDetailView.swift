@@ -1,5 +1,6 @@
 import SwiftUI
 
+// MARK: - Course Detail View
 struct CourseDetailView: View {
     // MARK: - Properties
     let course: Course
@@ -40,35 +41,35 @@ struct CourseDetailView: View {
             } else {
                 courseDetailsSection
                 gradesSection
-                gradeScaleSection
+                gradeScaleSummaryView
             }
         }
         .navigationTitle(course.name)
         .onAppear { setupView() }
         .onChange(of: gradeViewModel.grades) { _ in updateAverageAndGrade() }
-        .alert("Delete Grade", isPresented: $showingDeleteConfirmation) {
-            Button("Delete", role: .destructive) {
+        .alert(LocalizedStringKey("delete_grade"), isPresented: $showingDeleteConfirmation) {
+            Button(LocalizedStringKey("delete"), role: .destructive) {
                 if let grade = gradeToDelete {
                     deleteGrade(grade)
                 }
             }
-            Button("Cancel", role: .cancel) {
+            Button(LocalizedStringKey("cancel"), role: .cancel) {
                 gradeToDelete = nil
             }
         } message: {
-            Text("Are you sure you want to delete this grade?")
+            Text(LocalizedStringKey("delete_confirmation"))
         }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
             case .addGrade:
                 GradeFormView(
-                    title: "Add Grade",
+                    title: String(localized: "add_grade"),
                     courseId: course.id,
                     viewModel: gradeViewModel
                 )
             case .editGrade(let grade):
                 GradeFormView(
-                    title: "Edit Grade",
+                    title: String(localized: "edit_grade"),
                     courseId: course.id,
                     grade: grade,
                     viewModel: gradeViewModel
@@ -83,7 +84,7 @@ struct CourseDetailView: View {
     private var loadingView: some View {
         HStack {
             Spacer()
-            ProgressView("Loading...")
+            ProgressView(LocalizedStringKey("loading"))
                 .progressViewStyle(.circular)
                 .padding()
             Spacer()
@@ -92,14 +93,10 @@ struct CourseDetailView: View {
     
     // MARK: - Course Details Section
     private var courseDetailsSection: some View {
-        Section("Course Details") {
-            DetailRow(title: "Course Name", value: course.name)
-            DetailRow(title: "Credits", value: String(format: "%.2f", course.credits))
-            DetailRow(title: "Average", value: String(format: "%.2f", currentAverage))
-            DetailRow(title: "Letter Grade", value: gradeScaleViewModel.currentGrade)
-                .foregroundColor(.blue)
-            DetailRow(title: "GPA Impact", value: String(format: "%.2f", gradeScaleViewModel.currentGPA))
-                .foregroundColor(.blue)
+        Section(LocalizedStringKey("course_details")) {
+            DetailRow(title: LocalizedStringKey("course_name"), value: course.name)
+            DetailRow(title: LocalizedStringKey("credits"), value: String(format: "%.2f", course.credits))
+            DetailRow(title: LocalizedStringKey("average"), value: String(format: "%.2f", currentAverage))
         }
     }
     
@@ -111,27 +108,32 @@ struct CourseDetailView: View {
             } else {
                 gradesListView
             }
-        } header: {
+        } // gradesSection içindeki header kısmını şöyle değiştirelim:
+        header: {
             HStack {
-                Text("Grades")
+                Text(LocalizedStringKey("grades"))
                 Spacer()
-                Text("Remaining: \(gradeViewModel.remainingWeight(forCourse: course.id), specifier: "%.0f")%")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.trailing, 8)
+                Text(String(
+                    format: String(localized: "remaining_weight"),
+                    Int(gradeViewModel.remainingWeight(forCourse: course.id))
+                ))
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.trailing, 8)
                 Button {
                     activeSheet = .addGrade
                 } label: {
-                    Image(systemName: "plus.circle.fill")  // plus yerine plus.circle.fill kullanıyoruz
-                        .font(.system(size: 22))  // boyutu 14'ten 22'ye çıkardık
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 22))
                         .foregroundColor(.blue)
                 }
                 .buttonStyle(.plain)
             }
         }
     }
+    
     private var emptyGradesView: some View {
-        Text("No grades yet")
+        Text(LocalizedStringKey("no_grades_yet"))
             .foregroundColor(.secondary)
             .italic()
             .frame(maxWidth: .infinity, alignment: .center)
@@ -146,74 +148,60 @@ struct CourseDetailView: View {
                         gradeToDelete = grade
                         showingDeleteConfirmation = true
                     } label: {
-                        Label("Delete", systemImage: "trash")
+                        Label(LocalizedStringKey("delete"), systemImage: "trash")
                     }
                     
                     Button {
                         activeSheet = .editGrade(grade)
                     } label: {
-                        Label("Edit", systemImage: "pencil")
+                        Label(LocalizedStringKey("edit"), systemImage: "pencil")
                     }
                     .tint(.blue)
                 }
         }
     }
     
-    private var gradesHeaderView: some View {
-        HStack {
-            Text("Grades")
-            Spacer()
-            Text("Remaining: \(gradeViewModel.remainingWeight(forCourse: course.id), specifier: "%.0f")%")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-    }
-    
-    // MARK: - Grade Scale Section
-    private var gradeScaleSection: some View {
-        Section(header: gradeScaleHeaderView) {
-            ForEach(gradeScaleViewModel.gradeScales.sorted { $0.minScore > $1.minScore }) { scale in
+    // MARK: - Grade Scale Summary View
+    private var gradeScaleSummaryView: some View {
+        Section {
+            VStack(spacing: 12) {
                 HStack {
-                    Text(scale.letter)
-                        .font(.headline)
-                        .foregroundColor(scale.is_custom ? .blue : .primary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(LocalizedStringKey("current_grade"))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text(gradeScaleViewModel.currentGrade)
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.blue)
+                    }
                     
                     Spacer()
                     
-                    VStack(alignment: .trailing) {
-                        Text("≥ \(scale.minScore)")
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(LocalizedStringKey("semester_gpa"))
                             .font(.subheadline)
-                        Text("GPA: \(scale.gpa, specifier: "%.2f")")
-                            .font(.caption)
                             .foregroundColor(.secondary)
+                        Text(String(format: "%.2f", gradeScaleViewModel.currentGPA))
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.blue)
                     }
                 }
+                
+                Button {
+                    activeSheet = .gradeScaleEditor
+                } label: {
+                    HStack {
+                        Image(systemName: "ruler")
+                        Text(LocalizedStringKey("view_grade_scale"))
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+                }
+                .padding(.top, 4)
             }
-        }
-    }
-    
-    private var gradeScaleHeaderView: some View {
-        HStack {
-            Text("Grade Scale")
-            Spacer()
-            Button("Edit") {
-                activeSheet = .gradeScaleEditor
-            }
-            .font(.caption)
-            .foregroundColor(.blue)
-        }
-    }
-    
-    // MARK: - Toolbar Content
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                activeSheet = .addGrade
-            } label: {
-                Image(systemName: "plus.circle.fill")
-                    .imageScale(.large)
-            }
-            .accessibilityLabel("Add Grade")
+            .padding(.vertical, 8)
         }
     }
     
@@ -259,7 +247,7 @@ struct CourseDetailView: View {
 
 // MARK: - Helper Views
 struct DetailRow: View {
-    let title: String
+    let title: LocalizedStringKey
     let value: String
     
     var body: some View {

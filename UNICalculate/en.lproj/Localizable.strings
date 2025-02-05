@@ -65,7 +65,25 @@
 "select_language" = "Select Language";
 "appearance" = "Appearance";
 "theme" = "Theme";
-
+// Course Detail Strings
+"course_details" = "Course Details";
+"loading" = "Loading...";
+"no_grades_yet" = "No grades yet";
+"grades" = "Grades";
+"remaining_weight" = "Remaining: %d%%";
+"delete_grade" = "Delete Grade";
+"delete_confirmation" = "Are you sure you want to delete this grade?";
+"delete" = "Delete";
+"cancel" = "Cancel";
+"add_grade" = "Add Grade";
+"edit_grade" = "Edit Grade";
+"current_grade" = "Current Grade";
+"semester_gpa" = "Semester GPA"; // GPA Impact yerine daha anlaşılır bir isim
+"view_grade_scale" = "View Grade Scale";
+"course_name" = "Course Name";
+"credits" = "Credits";
+"average" = "Average";
+"letter_grade" = "Letter Grade Score";
 /* Error Messages */
 "error_invalid_credentials" = "Invalid email or password";
 "error_email_exists" = "Email already exists";

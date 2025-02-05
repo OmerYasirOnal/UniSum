@@ -82,3 +82,22 @@
 "invalid_credits" = "Geçersiz kredi değeri";
 "course_add_error" = "Ders eklenirken hata oluştu";
 "weight_exceed_error" = "Toplam ağırlık 100%%'ü geçemez. Kullanılabilir ağırlık: %d%%";
+// Turkish version
+"course_details" = "Ders Detayları";
+"loading" = "Yükleniyor...";
+"no_grades_yet" = "Henüz not girilmemiş";
+"grades" = "Notlar";
+"remaining_weight" = "Kalan: %d%%";
+"delete_grade" = "Notu Sil";
+"delete_confirmation" = "Bu notu silmek istediğinize emin misiniz?";
+"delete" = "Sil";
+"cancel" = "İptal";
+"add_grade" = "Not Ekle";
+"edit_grade" = "Not Düzenle";
+"current_grade" = "Mevcut Not";
+"semester_gpa" = "Dönem Ortalaması";
+"view_grade_scale" = "Not Skalasını Görüntüle";
+"course_name" = "Ders Adı";
+"credits" = "Krediler";
+"average" = "Ortalama";
+"letter_grade" = "Harf Notu Puanı";
