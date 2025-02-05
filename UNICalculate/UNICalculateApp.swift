@@ -5,7 +5,7 @@ import SwiftUI
 struct UNICalculateApp: App {
     @StateObject private var languageManager = LanguageManager()
     @State private var languageChanged = false
-
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

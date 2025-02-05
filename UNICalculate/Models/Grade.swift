@@ -10,12 +10,12 @@ struct Grade: Identifiable, Codable, Equatable { // ✅ Equatable eklendi
     // Equatable protokolü için gerekli static func
     static func == (lhs: Grade, rhs: Grade) -> Bool {
         return lhs.id == rhs.id &&
-               lhs.courseId == rhs.courseId &&
-               lhs.gradeType == rhs.gradeType &&
-               lhs.score == rhs.score &&
-               lhs.weight == rhs.weight &&
-               lhs.createdAt == rhs.createdAt &&
-               lhs.updatedAt == rhs.updatedAt
+        lhs.courseId == rhs.courseId &&
+        lhs.gradeType == rhs.gradeType &&
+        lhs.score == rhs.score &&
+        lhs.weight == rhs.weight &&
+        lhs.createdAt == rhs.createdAt &&
+        lhs.updatedAt == rhs.updatedAt
     }
     
     enum CodingKeys: String, CodingKey {

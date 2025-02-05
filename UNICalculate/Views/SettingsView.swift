@@ -4,7 +4,7 @@ struct SettingsView: View {
     @EnvironmentObject var languageManager: LanguageManager
     @Environment(\.colorScheme) var colorScheme
     @StateObject private var authViewModel = AuthViewModel()
-
+    
     var body: some View {
         NavigationView {
             Form {
@@ -16,7 +16,7 @@ struct SettingsView: View {
                     }
                     .pickerStyle(SegmentedPickerStyle())
                 }
-
+                
                 // Tema görünümü
                 Section(header: Text(LocalizedStringKey("appearance"))) {
                     HStack {
@@ -26,7 +26,7 @@ struct SettingsView: View {
                             .bold()
                     }
                 }
-
+                
                 // Çıkış yap butonu
                 Section {
                     Button(action: {

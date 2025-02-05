@@ -101,6 +101,11 @@ class TermViewModel: ObservableObject {
         if let networkError = error as? NetworkError {
             switch networkError {
             case .unauthorized:
+                // Token hatası varsa AuthViewModel'e bildir
+                NotificationCenter.default.post(
+                    name: Notification.Name("TokenExpired"),
+                    object: nil
+                )
                 errorMessage = "Oturum süresi doldu. Lütfen tekrar giriş yapın."
             default:
                 errorMessage = error.localizedDescription

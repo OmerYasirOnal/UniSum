@@ -76,3 +76,6 @@
 "error_password_too_short" = "Password must be at least 6 characters";
 "error_university_required" = "University name is required";
 "error_department_required" = "Department name is required";
+
+// Localizable.strings (en)
+"error_session_expired" = "Your session has expired. Please log in again.";

@@ -9,18 +9,18 @@ struct GradeScale: Identifiable, Codable, Equatable {
     
     // MARK: - Static Properties
     static let defaultGradeDefinitions: [(letter: String, minScore: Int, gpa: Double)] = [
-            ("AA", 90, 4.00),
-            ("BA", 85, 3.50),
-            ("BB", 75, 3.00),
-            ("CB", 65, 2.50),
-            ("CC", 60, 2.00),
-            ("DC", 50, 1.50),
-            ("DD", 45, 1.00),
-            ("FD", 40, 0.50),
-            ("FF", 0, 0.00)
-        ]
-
-        
+        ("AA", 90, 4.00),
+        ("BA", 85, 3.50),
+        ("BB", 75, 3.00),
+        ("CB", 65, 2.50),
+        ("CC", 60, 2.00),
+        ("DC", 50, 1.50),
+        ("DD", 45, 1.00),
+        ("FD", 40, 0.50),
+        ("FF", 0, 0.00)
+    ]
+    
+    
     
     // MARK: - Computed Properties
     var courseId: Int { course_id }

@@ -10,24 +10,24 @@ struct LoginView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @AppStorage("appLanguage") private var appLanguage: String = "tr" // Dil durumu
     @EnvironmentObject var languageManager: LanguageManager
-
+    
     enum Field {
         case email, password
     }
     
     // MARK: - Body
     var body: some View {
-            NavigationView {
-                ZStack {
-                    backgroundGradient
+        NavigationView {
+            ZStack {
+                backgroundGradient
+                
+                VStack(spacing: 0) {
+                    HStack {
+                        Spacer()
+                        languageToggleButton
+                    }
                     
-                    VStack(spacing: 0) {
-                        HStack {
-                            Spacer()
-                            languageToggleButton
-                        }
-                        
-                        ScrollView {
+                    ScrollView {
                         VStack(spacing: 20) {
                             Spacer(minLength: 50)
                             
@@ -107,7 +107,7 @@ struct LoginView: View {
         .padding(.trailing, 20)
     }
     
-   
+    
     
     // MARK: - UI Components
     private var backgroundGradient: some View {
@@ -140,7 +140,7 @@ struct LoginView: View {
                 .focused($focusedField, equals: .password)
                 .frame(minHeight: 50)
             
-           
+            
         }
         .padding(.horizontal, 30)
     }

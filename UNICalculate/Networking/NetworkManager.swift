@@ -2,23 +2,23 @@ import Foundation
 
 class NetworkManager {
     static let shared = NetworkManager()
-       private let baseURL: String
-       
-       private init() {
-           // 1) Secrets.plist dosyasının URL'sini bulalım
-           guard let secretsURL = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
-                 // 2) Dosyadaki verileri Data tipine dönüştürelim
-                 let data = try? Data(contentsOf: secretsURL),
-                 // 3) Data’yı bir sözlük (Dictionary) olarak okumak için PropertyListSerialization kullanalım
-                 let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
-                 let secretsDict = plist as? [String: Any],
-                 // 4) Okunan sözlükten "BaseURL" key’ini çekelim
-                 let url = secretsDict["BaseURL"] as? String else {
-               fatalError("BaseURL değeri Secrets.plist içerisinde bulunamadı veya format yanlış!")
-           }
-
-           self.baseURL = url
-       }
+    private let baseURL: String
+    
+    private init() {
+        // 1) Secrets.plist dosyasının URL'sini bulalım
+        guard let secretsURL = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
+              // 2) Dosyadaki verileri Data tipine dönüştürelim
+              let data = try? Data(contentsOf: secretsURL),
+              // 3) Data’yı bir sözlük (Dictionary) olarak okumak için PropertyListSerialization kullanalım
+              let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
+              let secretsDict = plist as? [String: Any],
+              // 4) Okunan sözlükten "BaseURL" key’ini çekelim
+              let url = secretsDict["BaseURL"] as? String else {
+            fatalError("BaseURL değeri Secrets.plist içerisinde bulunamadı veya format yanlış!")
+        }
+        
+        self.baseURL = url
+    }
     // MARK: - Core Network Request Method
     private func makeRequest<T: Decodable>(
         endpoint: String,
@@ -65,6 +65,16 @@ class NetworkManager {
         
         // Network call
         URLSession.shared.dataTask(with: request) { data, response, error in
+            if let httpResponse = response as? HTTPURLResponse,
+               httpResponse.statusCode == 401 {
+                // Token hatası varsa NotificationCenter ile bildir
+                NotificationCenter.default.post(
+                    name: Notification.Name("TokenExpired"),
+                    object: nil
+                )
+                completion(.failure(NetworkError.unauthorized))
+                return
+            }
             if let error = error {
                 print("❌ Network Error:", error.localizedDescription)
                 completion(.failure(error))

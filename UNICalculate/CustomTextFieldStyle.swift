@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CustomTextFieldModifier: ViewModifier {
     @Environment(\.colorScheme) var colorScheme // Cihazın modunu algılar
-
+    
     func body(content: Content) -> some View {
         content
             .textFieldStyle(PlainTextFieldStyle())

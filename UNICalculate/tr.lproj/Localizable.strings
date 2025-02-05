@@ -81,3 +81,4 @@
 /* Term Bilgileri */
 "term_1" = "1. Dönem";
 "term_2" = "2. Dönem";
+"error_session_expired" = "Oturum süreniz doldu. Lütfen tekrar giriş yapın.";

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct EditGradeScaleView: View {
     @Binding var gradeScales: [GradeScale]
-
+    
     var body: some View {
         NavigationView {
             List {
@@ -16,7 +16,7 @@ struct EditGradeScaleView: View {
                         TextField("Min", value: $scale.minScore, format: .number)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .frame(width: 50)
-
+                        
                         TextField("GPA", value: $scale.gpa, format: .number)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .frame(width: 50)

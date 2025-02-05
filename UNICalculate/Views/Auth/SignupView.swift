@@ -190,20 +190,20 @@ struct SignupView: View {
     
     // MARK: - Keyboard Management
     private func setupKeyboardNotifications() {
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
-                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                    keyboardHeight = keyboardFrame.height
-                }
-            }
-            
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-                keyboardHeight = 0
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
+            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                keyboardHeight = keyboardFrame.height
             }
         }
         
-        private func removeKeyboardNotifications() {
-            NotificationCenter.default.removeObserver(self)
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+            keyboardHeight = 0
         }
+    }
+    
+    private func removeKeyboardNotifications() {
+        NotificationCenter.default.removeObserver(self)
+    }
     
     
 }

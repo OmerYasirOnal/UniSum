@@ -9,7 +9,7 @@ struct Course: Codable, Identifiable {
     let average: Double
     let createdAt: String
     let updatedAt: String
-
+    
     enum CodingKeys: String, CodingKey {
         case id
         case termId = "term_id"
