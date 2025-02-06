@@ -62,7 +62,6 @@ struct TermListView: View {
             ToolbarItem(placement: .principal) {
                 titleView
             }
-            
         }
     }
     
@@ -84,15 +83,13 @@ struct TermListView: View {
         }
     }
     
-    
-    
     // MARK: - Term List
     private var termListView: some View {
         List {
             ForEach(viewModel.terms) { term in
                 termListRow(term: term)
             }
-            .onDelete(perform: deleteTerm) // Add this line
+            .onDelete(perform: deleteTerm)
         }
         .listStyle(PlainListStyle())
     }
@@ -102,18 +99,14 @@ struct TermListView: View {
             termRow(term: term)
         }
     }
+    
     private func deleteTerm(at offsets: IndexSet) {
         offsets.forEach { index in
             let term = viewModel.terms[index]
-            viewModel.deleteTerm(termId: term.id) { success in
-                if success {
-                    print("✅ Dönem başarıyla silindi: \(term.termNumber)")
-                } else {
-                    print("❌ Dönem silme işlemi başarısız")
-                }
-            }
+            viewModel.deleteTerm(termId: term.id) { _ in }
         }
     }
+    
     private func termRow(term: Term) -> some View {
         VStack(alignment: .leading) {
             Text("Dönem \(term.termNumber)")
@@ -209,8 +202,6 @@ struct TermListView: View {
         }
     }
     
-    
-    
     private func showAddTermPanel() {
         withAnimation(.spring()) {
             isAddTermViewVisible = true
@@ -218,105 +209,6 @@ struct TermListView: View {
     }
     
     private func deleteTerm(_ term: Term) {
-        viewModel.deleteTerm(termId: term.id) { success in
-            if success {
-                print("✅ Dönem başarıyla silindi: \(term.termNumber)")
-            } else {
-                print("❌ Dönem silme işlemi başarısız")
-            }
-        }
-    }
-}
-struct SidebarView: View {
-    @Binding var isVisible: Bool
-    @EnvironmentObject var authViewModel: AuthViewModel
-    @Environment(\.colorScheme) var colorScheme
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // Profile Header
-            VStack(spacing: 8) {
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .frame(width: 45, height: 45)
-                    .foregroundColor(Color.accentColor)
-                    .padding(.top, 8)
-                
-                Text(authViewModel.user?.email ?? "User")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(colorScheme == .dark ? Color(.systemGray6) : .white)
-            
-            Divider()
-            
-            // Menu Items
-            ScrollView {
-                VStack(spacing: 0) {
-                    NavigationLink(destination: ProfileView()) {
-                        MenuItemView(icon: "person.fill", title: "profile")
-                    }
-                    
-                    NavigationLink(destination: SettingsView()) {
-                        MenuItemView(icon: "gearshape.fill", title: "settings")
-                    }
-                    
-                    Divider()
-                        .padding(.vertical, 10)
-                    
-                    Button(action: {
-                        authViewModel.logout()
-                    }) {
-                        MenuItemView(
-                            icon: "rectangle.portrait.and.arrow.right",
-                            title: "logout",
-                            iconColor: .red,
-                            textColor: .red
-                        )
-                    }
-                }
-                .padding(.vertical, 10)
-            }
-            
-            Spacer()
-        }
-        // SidebarView içine ekleyin
-        .gesture(
-            DragGesture()
-                .onEnded { gesture in
-                    if gesture.translation.width < -50 {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) {
-                            isVisible = false
-                        }
-                    }
-                }
-        )
-        .background(colorScheme == .dark ? Color(.systemGray6) : .white)
-        .frame(maxHeight: .infinity)
-    }
-}
-// MARK: - Menu Item View
-struct MenuItemView: View {
-    let icon: String
-    let title: LocalizedStringKey
-    var iconColor: Color = .primary
-    var textColor: Color = .primary
-    
-    var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .foregroundColor(iconColor)
-                .frame(width: 24)
-            Text(title)
-                .foregroundColor(textColor)
-                .font(.subheadline)
-            Spacer()
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        viewModel.deleteTerm(termId: term.id) { _ in }
     }
 }

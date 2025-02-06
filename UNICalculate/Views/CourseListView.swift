@@ -3,49 +3,48 @@ import SwiftUI
 struct CourseListView: View {
     @StateObject private var viewModel = CourseViewModel()
     let term: Term
-    @State private var selectedCourse: Course? = nil  // Add this line
+    @State private var selectedCourse: Course? = nil
     @State private var isAddCourseViewVisible = false
     @State private var isEditing = false
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-           ZStack {
-               mainContent
-               
-               if isAddCourseViewVisible {
-                   AddCourseView(
-                       isPresented: $isAddCourseViewVisible,
-                       selectedCourse: $selectedCourse,  // Sırası değiştirildi
-                       courseViewModel: viewModel,
-                       termId: term.id,
-                       userId: term.userId
-                   )
-                   .transition(.scale)
-               }
-           }
-           .navigationTitle("Dersler")
-           .navigationBarTitleDisplayMode(.inline)
-           .toolbar { toolbarContent }
-           .onAppear {
-               viewModel.fetchCourses(for: term.id)
-           }
-           .onChange(of: selectedCourse) { course in
-               if let course = course {
-                   let destination = CourseDetailView(course: course)
-                   if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                      let window = windowScene.windows.first,
-                      let rootViewController = window.rootViewController {
-                       if let navigationController = rootViewController.findNavigationController() {
-                           DispatchQueue.main.async {
-                               navigationController.pushViewController(UIHostingController(rootView: destination), animated: true)
-                               selectedCourse = nil
-                           }
-                       }
-                   }
-               }
-           }
-       }
-       
+        ZStack {
+            mainContent
+            
+            if isAddCourseViewVisible {
+                AddCourseView(
+                    isPresented: $isAddCourseViewVisible,
+                    selectedCourse: $selectedCourse,
+                    courseViewModel: viewModel,
+                    termId: term.id,
+                    userId: term.userId
+                )
+                .transition(.scale)
+            }
+        }
+        .navigationTitle("Dersler")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { toolbarContent }
+        .onAppear {
+            viewModel.fetchCourses(for: term.id)
+        }
+        .onChange(of: selectedCourse) { course in
+            if let course = course {
+                let destination = CourseDetailView(course: course)
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first,
+                   let rootViewController = window.rootViewController {
+                    if let navigationController = rootViewController.findNavigationController() {
+                        DispatchQueue.main.async {
+                            navigationController.pushViewController(UIHostingController(rootView: destination), animated: true)
+                            selectedCourse = nil
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     // MARK: - Main Content
     private var mainContent: some View {
@@ -141,6 +140,7 @@ struct CourseListView: View {
         }
     }
 }
+
 extension UIViewController {
     func findNavigationController() -> UINavigationController? {
         if let nav = self as? UINavigationController {

@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct SignupView: View {
-    // MARK: - Properties
     @State private var email = ""
     @State private var password = ""
     @State private var university = ""
@@ -16,7 +15,6 @@ struct SignupView: View {
         case email, password, university, department
     }
     
-    // MARK: - Body
     var body: some View {
         NavigationView {
             ZStack {

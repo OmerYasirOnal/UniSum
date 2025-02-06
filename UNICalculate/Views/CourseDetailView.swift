@@ -1,6 +1,5 @@
 import SwiftUI
 
-// MARK: - Course Detail View
 struct CourseDetailView: View {
     // MARK: - Properties
     let course: Course
@@ -80,7 +79,7 @@ struct CourseDetailView: View {
         }
     }
     
-    // MARK: - Loading View
+    // MARK: - Content Views
     private var loadingView: some View {
         HStack {
             Spacer()
@@ -91,7 +90,6 @@ struct CourseDetailView: View {
         }
     }
     
-    // MARK: - Course Details Section
     private var courseDetailsSection: some View {
         Section(LocalizedStringKey("course_details")) {
             DetailRow(title: LocalizedStringKey("course_name"), value: course.name)
@@ -100,7 +98,6 @@ struct CourseDetailView: View {
         }
     }
     
-    // MARK: - Grades Section
     private var gradesSection: some View {
         Section {
             if gradeViewModel.grades.isEmpty {
@@ -108,8 +105,7 @@ struct CourseDetailView: View {
             } else {
                 gradesListView
             }
-        } // gradesSection içindeki header kısmını şöyle değiştirelim:
-        header: {
+        } header: {
             HStack {
                 Text(LocalizedStringKey("grades"))
                 Spacer()
@@ -161,7 +157,6 @@ struct CourseDetailView: View {
         }
     }
     
-    // MARK: - Grade Scale Summary View
     private var gradeScaleSummaryView: some View {
         Section {
             VStack(spacing: 12) {
@@ -205,7 +200,6 @@ struct CourseDetailView: View {
         }
     }
     
-    // MARK: - Row Views
     private func gradeRowView(grade: Grade) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {

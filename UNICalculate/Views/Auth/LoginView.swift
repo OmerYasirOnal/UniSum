@@ -1,21 +1,18 @@
 import SwiftUI
 
 struct LoginView: View {
-    // MARK: - Properties
     @State private var email = ""
     @State private var password = ""
     @State private var keyboardHeight: CGFloat = 0
     @State private var navigateToSignup = false
     @FocusState private var focusedField: Field?
     @EnvironmentObject var authViewModel: AuthViewModel
-    @AppStorage("appLanguage") private var appLanguage: String = "tr" // Dil durumu
     @EnvironmentObject var languageManager: LanguageManager
     
     enum Field {
         case email, password
     }
     
-    // MARK: - Body
     var body: some View {
         NavigationView {
             ZStack {
@@ -30,14 +27,11 @@ struct LoginView: View {
                     ScrollView {
                         VStack(spacing: 20) {
                             Spacer(minLength: 50)
-                            
                             welcomeView
                             formView
                             loginButton
                             signupPrompt
-                            
                             Spacer(minLength: 20)
-                            
                             footerView
                         }
                         .padding(.bottom, keyboardHeight)
@@ -54,60 +48,41 @@ struct LoginView: View {
         .onDisappear(perform: removeKeyboardNotifications)
     }
     
-    // MARK: - Language Toggle Button
     private var languageToggleButton: some View {
-        VStack {
-            Menu {
-                Button(action: {
-                    withAnimation {
-                        languageManager.selectedLanguage = "tr"
-                    }
-                }) {
-                    HStack {
-                        Text("Türkçe")
-                        if languageManager.selectedLanguage == "tr" {
-                            Image(systemName: "checkmark.circle.fill")
-                        }
-                    }
-                }
-                
-                Button(action: {
-                    withAnimation {
-                        languageManager.selectedLanguage = "en"
-                    }
-                }) {
-                    HStack {
-                        Text("English")
-                        if languageManager.selectedLanguage == "en" {
-                            Image(systemName: "checkmark.circle.fill")
-                        }
-                    }
-                }
-            } label: {
+        Menu {
+            Button(action: { languageManager.selectedLanguage = "tr" }) {
                 HStack {
-                    Text(languageManager.displayText)
-                        .fontWeight(.medium)
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 14))
+                    Text("Türkçe")
+                    if languageManager.selectedLanguage == "tr" {
+                        Image(systemName: "checkmark.circle.fill")
+                    }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule()
-                        .fill(Color.white.opacity(0.2))
-                )
-                .overlay(
-                    Capsule()
-                        .stroke(Color.white.opacity(0.3), lineWidth: 0.5)
-                )
             }
-            .foregroundColor(.white)
+            
+            Button(action: { languageManager.selectedLanguage = "en" }) {
+                HStack {
+                    Text("English")
+                    if languageManager.selectedLanguage == "en" {
+                        Image(systemName: "checkmark.circle.fill")
+                    }
+                }
+            }
+        } label: {
+            HStack {
+                Text(languageManager.displayText)
+                    .fontWeight(.medium)
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 14))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Capsule().fill(Color.white.opacity(0.2)))
+            .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 0.5))
         }
+        .foregroundColor(.white)
         .padding(.top, 50)
         .padding(.trailing, 20)
     }
-    
-    
     
     // MARK: - UI Components
     private var backgroundGradient: some View {
@@ -139,8 +114,6 @@ struct LoginView: View {
                 .customTextField()
                 .focused($focusedField, equals: .password)
                 .frame(minHeight: 50)
-            
-            
         }
         .padding(.horizontal, 30)
     }
@@ -239,4 +212,3 @@ extension String {
         return emailPredicate.evaluate(with: self)
     }
 }
-

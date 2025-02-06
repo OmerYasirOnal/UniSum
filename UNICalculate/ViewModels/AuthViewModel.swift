@@ -3,22 +3,19 @@ import SwiftUI
 class AuthViewModel: ObservableObject {
     @Published var user: User?
     @Published var isAuthenticated = false
-    @Published var errorMessage: String?
+    @Published var errorMessageKey: LocalizedStringKey?
     private let networkManager = NetworkManager.shared
-    @Published var errorMessageKey: LocalizedStringKey? // String yerine LocalizedStringKey kullanıyoruz
     
     init() {
         checkAuthentication()
     }
-    // Token süre kontrolü ve logout işlemi için yeni metod
+    
     func handleTokenExpiration(_ error: Error) {
         if let networkError = error as? NetworkError,
            case .unauthorized = networkError {
             DispatchQueue.main.async {
-                // Token süresi dolmuşsa logout yap
                 self.logout()
                 self.errorMessageKey = "error_session_expired"
-                // Kullanıcıya bildirim göster
                 NotificationCenter.default.post(
                     name: Notification.Name("SessionExpired"),
                     object: nil
@@ -26,6 +23,7 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
+    
     func login(email: String, password: String) {
         let parameters = ["email": email, "password": password]
         
@@ -39,7 +37,6 @@ class AuthViewModel: ObservableObject {
                     UserDefaults.standard.set(response.user.id, forKey: "userId")
                     self.errorMessageKey = nil
                 case .failure(let error):
-                    // Hata türüne göre uygun mesaj anahtarını seç
                     if let networkError = error as? NetworkError {
                         switch networkError {
                         case .badResponse(401):
@@ -97,15 +94,12 @@ class AuthViewModel: ObservableObject {
         self.isAuthenticated = false
     }
     
-    // AuthViewModel.swift
     func checkAuthentication() {
         guard let token = UserDefaults.standard.string(forKey: "authToken"),
               let _ = UserDefaults.standard.string(forKey: "userId") else {
             isAuthenticated = false
             return
         }
-        print("✅ Kullanıcı oturum açık. Token:", token)
-        // Token geçerliliğini API ile kontrol edebilirsiniz (opsiyonel)
         isAuthenticated = true
     }
 }

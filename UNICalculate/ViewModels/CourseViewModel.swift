@@ -1,6 +1,5 @@
 import Foundation
 
-// MARK: - CourseViewModel
 class CourseViewModel: ObservableObject {
     @Published var courses: [Course] = []
     @Published var isLoading = false
@@ -11,7 +10,6 @@ class CourseViewModel: ObservableObject {
     // MARK: - Fetch Courses
     func fetchCourses(for termId: Int) {
         isLoading = true
-        print("📡 Fetching courses for term: \(termId)")
         
         networkManager.get(
             endpoint: "/terms/\(termId)/courses",
@@ -21,11 +19,9 @@ class CourseViewModel: ObservableObject {
                 self?.isLoading = false
                 switch result {
                 case .success(let courses):
-                    print("✅ Found \(courses.count) courses")
                     self?.courses = courses
                     self?.errorMessage = ""
                 case .failure(let error):
-                    print("❌ Error fetching courses:", error)
                     self?.errorMessage = error.localizedDescription
                 }
             }
@@ -41,8 +37,6 @@ class CourseViewModel: ObservableObject {
             "credits": credits
         ]
         
-        print("📤 Adding course:", parameters)
-        
         networkManager.post(
             endpoint: "/terms/\(termId)/courses",
             parameters: parameters,
@@ -51,11 +45,9 @@ class CourseViewModel: ObservableObject {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let newCourse):
-                    print("✅ Course added:", newCourse)
                     self?.courses.append(newCourse)
                     completion(true)
                 case .failure(let error):
-                    print("❌ Failed to add course:", error)
                     self?.errorMessage = error.localizedDescription
                     completion(false)
                 }
@@ -65,8 +57,6 @@ class CourseViewModel: ObservableObject {
     
     // MARK: - Delete Course
     func deleteCourse(courseId: Int, completion: @escaping (Bool) -> Void) {
-        print("🗑 Deleting course: \(courseId)")
-        
         networkManager.delete(
             endpoint: "/courses/\(courseId)",
             requiresAuth: true
@@ -74,12 +64,10 @@ class CourseViewModel: ObservableObject {
             DispatchQueue.main.async {
                 switch result {
                 case .success:
-                    print("✅ Course deleted successfully")
                     self?.courses.removeAll { $0.id == courseId }
                     self?.errorMessage = ""
                     completion(true)
                 case .failure(let error):
-                    print("❌ Failed to delete course:", error)
                     self?.errorMessage = error.localizedDescription
                     completion(false)
                 }
@@ -87,4 +75,3 @@ class CourseViewModel: ObservableObject {
         }
     }
 }
-

@@ -11,7 +11,6 @@ class TermViewModel: ObservableObject {
     // MARK: - Term Operations
     func fetchTerms() {
         isLoading = true
-        print("🔄 Dönemler getiriliyor...")
         
         networkManager.get(endpoint: "/terms/my-terms", requiresAuth: true) { [weak self] (result: Result<[Term], Error>) in
             DispatchQueue.main.async {
@@ -32,8 +31,6 @@ class TermViewModel: ObservableObject {
             "term_number": termNumber
         ]
         
-        print("📤 Dönem ekleniyor:", parameters)
-        
         networkManager.post(endpoint: "/terms", parameters: parameters, requiresAuth: true) { [weak self] (result: Result<Term, Error>) in
             DispatchQueue.main.async {
                 self?.handleAddTermResponse(result)
@@ -42,8 +39,6 @@ class TermViewModel: ObservableObject {
     }
     
     func deleteTerm(termId: Int, completion: @escaping (Bool) -> Void) {
-        print("🗑 Dönem siliniyor: \(termId)")
-        
         networkManager.delete(endpoint: "/terms/\(termId)", requiresAuth: true) { [weak self] result in
             DispatchQueue.main.async {
                 self?.handleDeleteTermResponse(result, termId: termId, completion: completion)
@@ -57,25 +52,21 @@ class TermViewModel: ObservableObject {
         
         switch result {
         case .success(let terms):
-            print("✅ Dönemler başarıyla getirildi")
             self.terms = terms
             self.errorMessage = ""
             
         case .failure(let error):
-            print("❌ Dönem getirme hatası:", error.localizedDescription)
             handleError(error)
         }
     }
     
     private func handleAddTermResponse(_ result: Result<Term, Error>) {
         switch result {
-        case .success(let newTerm):
-            print("✅ Dönem başarıyla eklendi:", newTerm)
+        case .success:
             fetchTerms()
             errorMessage = ""
             
         case .failure(let error):
-            print("❌ Dönem ekleme hatası:", error.localizedDescription)
             handleError(error)
         }
     }
@@ -83,13 +74,11 @@ class TermViewModel: ObservableObject {
     private func handleDeleteTermResponse(_ result: Result<Void, Error>, termId: Int, completion: @escaping (Bool) -> Void) {
         switch result {
         case .success:
-            print("✅ Dönem başarıyla silindi")
             terms.removeAll { $0.id == termId }
             errorMessage = ""
             completion(true)
             
         case .failure(let error):
-            print("❌ Dönem silme hatası:", error.localizedDescription)
             handleError(error)
             fetchTerms()
             completion(false)
@@ -101,7 +90,6 @@ class TermViewModel: ObservableObject {
         if let networkError = error as? NetworkError {
             switch networkError {
             case .unauthorized:
-                // Token hatası varsa AuthViewModel'e bildir
                 NotificationCenter.default.post(
                     name: Notification.Name("TokenExpired"),
                     object: nil
