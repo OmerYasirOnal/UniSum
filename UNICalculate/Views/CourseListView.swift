@@ -28,6 +28,7 @@ struct CourseListView: View {
         .toolbar { toolbarContent }
         .onAppear {
             viewModel.fetchCourses(for: term.id)
+            viewModel.fetchTermGPA(for: term.id)
         }
         .onChange(of: selectedCourse) { course in
             if let course = course {
@@ -59,11 +60,61 @@ struct CourseListView: View {
                 courseList
             }
             
+            termAverageSection
             addButton
         }
     }
     
     // MARK: - Supporting Views
+    private var termAverageSection: some View {
+        VStack(spacing: 12) {
+            if viewModel.isLoadingGPA {
+                ProgressView()
+                    .padding()
+            } else {
+                HStack(spacing: 20) {
+                    // DNO Kartı
+                    VStack(alignment: .center, spacing: 4) {
+                        Text(LocalizedStringKey("term_average"))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.2f", viewModel.termGPA))
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.blue)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(.systemBackground))
+                            .shadow(color: Color.black.opacity(0.1), radius: 3)
+                    )
+                    
+                    // Toplam Kredi Kartı
+                    VStack(alignment: .center, spacing: 4) {
+                        Text(LocalizedStringKey("total_credits"))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.1f", viewModel.totalCredits))
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.blue)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(.systemBackground))
+                            .shadow(color: Color.black.opacity(0.1), radius: 3)
+                    )
+                }
+                .padding(.horizontal)
+            }
+        }
+        .padding(.vertical, 8)
+    }
+    
     private var courseList: some View {
         List {
             ForEach(viewModel.courses) { course in

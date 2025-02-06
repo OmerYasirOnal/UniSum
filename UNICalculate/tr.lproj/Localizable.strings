@@ -101,3 +101,5 @@
 "credits" = "Krediler";
 "average" = "Ortalama";
 "letter_grade" = "Harf Notu Puanı";
+"term_average" = "Dönem Not Ortalaması";
+"total_credits" = "Toplam Kredi";

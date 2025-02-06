@@ -100,3 +100,5 @@
 "invalid_credits" = "Invalid credits value";
 "course_add_error" = "Failed to add course";
 "weight_exceed_error" = "Total weight cannot exceed 100%%. Available weight: %d%%";
+"term_average" = "Term Average";
+"total_credits" = "Total Credits";
