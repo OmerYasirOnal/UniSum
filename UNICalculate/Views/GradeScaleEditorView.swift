@@ -37,6 +37,9 @@ struct GradeScaleEditorView: View {
                     }
                 }
             }
+            .onAppear {
+                viewModel.loadInitialData()
+            }
         }
     }
 }
@@ -48,6 +51,7 @@ struct GradeScaleRow: View {
     
     @State private var minScore: String
     @State private var gpa: String
+    
     init(scale: GradeScale, onUpdate: @escaping (GradeScale) -> Void) {
         self.scale = scale
         self.onUpdate = onUpdate
@@ -64,16 +68,12 @@ struct GradeScaleRow: View {
             TextField("Min Score", text: $minScore)
                 .keyboardType(.numberPad)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onChange(of: minScore) { _ in
-                    updateScale()
-                }
+                .onChange(of: minScore) { _ in updateScale() }
             
             TextField("GPA", text: $gpa)
                 .keyboardType(.decimalPad)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onChange(of: gpa) { _ in
-                    updateScale()
-                }
+                .onChange(of: gpa) { _ in updateScale() }
         }
         .padding(.vertical, 4)
     }

@@ -27,8 +27,7 @@ struct CourseListView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
         .onAppear {
-            viewModel.fetchCourses(for: term.id)
-            viewModel.fetchTermGPA(for: term.id)
+            viewModel.fetchCourses(for: term.id) // ✅ Dersleri çek
         }
         .onChange(of: selectedCourse) { course in
             if let course = course {
@@ -65,7 +64,7 @@ struct CourseListView: View {
         }
     }
     
-    // MARK: - Supporting Views
+    // MARK: - Term GPA Section
     private var termAverageSection: some View {
         VStack(spacing: 12) {
             if viewModel.isLoadingGPA {
@@ -73,7 +72,7 @@ struct CourseListView: View {
                     .padding()
             } else {
                 HStack(spacing: 20) {
-                    // DNO Kartı
+                    // Dönem Ortalaması Kartı
                     VStack(alignment: .center, spacing: 4) {
                         Text(LocalizedStringKey("term_average"))
                             .font(.subheadline)
@@ -115,6 +114,7 @@ struct CourseListView: View {
         .padding(.vertical, 8)
     }
     
+    // MARK: - Ders Listesi
     private var courseList: some View {
         List {
             ForEach(viewModel.courses) { course in
@@ -127,6 +127,7 @@ struct CourseListView: View {
         .listStyle(PlainListStyle())
     }
     
+    // ✅ Güncellenmiş Ders Satırı
     private func courseRow(course: Course) -> some View {
         NavigationLink(destination: CourseDetailView(course: course)) {
             VStack(alignment: .leading, spacing: 4) {
@@ -139,6 +140,24 @@ struct CourseListView: View {
                 }
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+                
+                // ✅ Ders Ortalaması ve Harf Notu
+                if course.letterGrade != nil{
+                    let average = course.average
+                    let letter = course.letterGrade!
+                    HStack {
+                        Text("Ortalama:")
+                        Text(String(format: "%.1f", average))
+                            .bold()
+                        
+                        Spacer()
+                        
+                        Text("\(letter)/\(String(format: "%.2f", course.gpa ?? 0.0))")
+                            .bold()
+                            .foregroundColor(.blue)
+                    }
+                    .font(.subheadline)
+                }
             }
             .padding(.vertical, 8)
         }
@@ -183,11 +202,15 @@ struct CourseListView: View {
         }
     }
     
-    // MARK: - Actions
+    // MARK: - Ders Silme
     private func handleDelete(at indexSet: IndexSet) {
         for index in indexSet {
             let course = viewModel.courses[index]
-            viewModel.deleteCourse(courseId: course.id) { _ in }
+            viewModel.deleteCourse(courseId: course.id) { success in
+                if success {
+                    viewModel.fetchTermGPA(for: term.id) // ✅ Ders silindiğinde term GPA'yı güncelle
+                }
+            }
         }
     }
 }

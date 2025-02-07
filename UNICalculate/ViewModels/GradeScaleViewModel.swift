@@ -1,61 +1,25 @@
 import SwiftUI
 
+import SwiftUI
+
 class GradeScaleViewModel: ObservableObject {
-    // MARK: - Properties
-    @Published var currentGrade: String = "N/A"
-    @Published var currentGPA: Double = 0.0
+    @Published var course: Course
+    @Published var gradeScales: [GradeScale] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    @Published var gradeScales: [GradeScale] = [] {
-        didSet {
-            calculateCurrentGrade(average: course.average)
-        }
-    }
-    
+    @Published var currentGrade: String = "N/A"
+        @Published var currentGPA: Double = 0.0
     private let networkManager = NetworkManager.shared
-    private let course: Course
     
-    // MARK: - Initialization
     init(course: Course) {
         self.course = course
         loadInitialData()
     }
     
-    // MARK: - Public Methods
+    // ✅ İlk açılışta default skalaları yükle
     func loadInitialData() {
         self.gradeScales = GradeScale.getDefaultScales(for: course.id)
         fetchCustomScales()
-        calculateCurrentGrade(average: course.average)
-    }
-    
-    func saveGradeScales() {
-        let modifiedScales = gradeScales.filter { $0.isDifferentFromDefault() }
-        let scalesToSave = modifiedScales.map { scale -> [String: Any] in
-            [
-                "letter": scale.letter,
-                "min_score": scale.minScore,
-                "gpa": scale.gpa,
-                "is_custom": true
-            ]
-        }
-        
-        networkManager.post(
-            endpoint: "/api/grade-scales/courses/\(course.id)",
-            parameters: ["gradeScales": scalesToSave],
-            requiresAuth: true
-        ) { [weak self] (result: Result<[GradeScale], Error>) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    self?.loadInitialData()
-                    if let average = self?.course.average {
-                        self?.calculateCurrentGrade(average: average)
-                    }
-                case .failure(let error):
-                    self?.errorMessage = error.localizedDescription
-                }
-            }
-        }
     }
     
     func calculateCurrentGrade(average: Double?) {
@@ -64,7 +28,7 @@ class GradeScaleViewModel: ObservableObject {
             currentGPA = 0.0
             return
         }
-        
+
         let sortedScales = gradeScales.sorted { $0.minScore > $1.minScore }
         
         if let gradeScale = sortedScales.first(where: { Double($0.minScore) <= avg }) {
@@ -78,43 +42,13 @@ class GradeScaleViewModel: ObservableObject {
             currentGPA = 0.0
         }
     }
-    
-    func resetToDefaultScales() {
-        gradeScales = GradeScale.getDefaultScales(for: course.id)
-        networkManager.delete(
-            endpoint: "/api/grade-scales/courses/\(course.id)",
-            requiresAuth: true
-        ) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    self?.loadInitialData()
-                case .failure(let error):
-                    self?.errorMessage = error.localizedDescription
-                }
-            }
-        }
-    }
-    
-    // MARK: - Private Methods
-    private func updateWithCustomScales(_ customScales: [GradeScale]) {
-        var updatedScales = self.gradeScales
-        
-        for customScale in customScales {
-            if let index = updatedScales.firstIndex(where: { $0.letter == customScale.letter }) {
-                updatedScales[index] = customScale
-            }
-        }
-        
-        self.gradeScales = updatedScales
-        calculateCurrentGrade(average: course.average)
-    }
-    
+
+    // ✅ Backend’den custom scale’leri çek
     private func fetchCustomScales() {
         isLoading = true
         
         networkManager.get(
-            endpoint: "/api/grade-scales/courses/\(course.id)",
+            endpoint: "/grade-scales/courses/\(course.id)",
             requiresAuth: true
         ) { [weak self] (result: Result<[GradeScale], Error>) in
             DispatchQueue.main.async {
@@ -129,14 +63,66 @@ class GradeScaleViewModel: ObservableObject {
         }
     }
     
-    private func hasCustomChanges() -> Bool {
-        let defaultScales = GradeScale.getDefaultScales(for: course.id)
-        return gradeScales.contains { currentScale in
-            guard let defaultScale = defaultScales.first(where: { $0.letter == currentScale.letter }) else {
-                return true
+    // ✅ Eğer custom skala varsa, default skalayı override et
+    private func updateWithCustomScales(_ customScales: [GradeScale]) {
+        var updatedScales = self.gradeScales
+        
+        for customScale in customScales {
+            if let index = updatedScales.firstIndex(where: { $0.letter == customScale.letter }) {
+                updatedScales[index] = customScale
             }
-            return currentScale.minScore != defaultScale.minScore ||
-                   abs(currentScale.gpa - defaultScale.gpa) > 0.001
+        }
+        
+        self.gradeScales = updatedScales
+    }
+    
+    // ✅ Kullanıcı güncelleyince backend’e kaydet ve GPA güncelle
+    func saveGradeScales() {
+            let modifiedScales = gradeScales.filter { $0.isDifferentFromDefault() }
+            let scalesToSave = modifiedScales.map { scale -> [String: Any] in
+                [
+                    "letter": scale.letter,
+                    "min_score": scale.minScore,
+                    "gpa": scale.gpa,
+                    "is_custom": true
+                ]
+            }
+
+            networkManager.post(
+                endpoint: "/grade-scales/courses/\(course.id)",
+                parameters: ["gradeScales": scalesToSave],
+                requiresAuth: true
+            ) { [weak self] (result: Result<[GradeScale], Error>) in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success:
+                        self?.loadInitialData()
+                        self?.updateCourseGPA() // ✅ Dersin GPA’sini güncelle
+                    case .failure(let error):
+                        self?.errorMessage = error.localizedDescription
+                    }
+                }
+            }
+        }
+
+
+
+    // ✅ GPA’yı backend’e kaydet
+    private func updateCourseGPA() {
+        networkManager.put(
+            endpoint: "/courses/\(course.id)/updateGPA",
+            parameters: [:],
+            requiresAuth: true
+        ) { [weak self] (result: Result<Course, Error>) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let updatedCourse):
+                    self?.course = updatedCourse
+                case .failure(let error):
+                    self?.errorMessage = error.localizedDescription
+                }
+            }
         }
     }
 }
+
