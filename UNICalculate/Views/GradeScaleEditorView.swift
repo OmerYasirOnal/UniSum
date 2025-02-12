@@ -9,7 +9,6 @@ import SwiftUI
 struct GradeScaleEditorView: View {
     @ObservedObject var viewModel: GradeScaleViewModel
     @Environment(\.dismiss) var dismiss
-    @State private var showingResetConfirmation = false
     
     var body: some View {
         NavigationView {
@@ -32,8 +31,13 @@ struct GradeScaleEditorView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
-                        viewModel.saveGradeScales()
-                        dismiss()
+                        viewModel.saveGradeScales { success in
+                            if success {
+                                dismiss()
+                            } else {
+                                // İsteğe bağlı: hata mesajı göster
+                            }
+                        }
                     }
                 }
             }

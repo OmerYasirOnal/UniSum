@@ -162,19 +162,20 @@ struct CourseDetailView: View {
             VStack(spacing: 12) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(LocalizedStringKey("current_grade"))
+                        Text("current_grade")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
+                        // ✅ Doğrudan GradeScaleViewModel’dan gelen currentGrade
                         Text(gradeScaleViewModel.currentGrade)
                             .font(.title)
                             .fontWeight(.bold)
                             .foregroundColor(.blue)
                     }
-                    
+
                     Spacer()
-                    
+
                     VStack(alignment: .trailing, spacing: 4) {
-                        Text(LocalizedStringKey("semester_gpa"))
+                        Text("semester_gpa")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         Text(String(format: "%.2f", gradeScaleViewModel.currentGPA))
@@ -183,13 +184,12 @@ struct CourseDetailView: View {
                             .foregroundColor(.blue)
                     }
                 }
-                
                 Button {
                     activeSheet = .gradeScaleEditor
                 } label: {
                     HStack {
                         Image(systemName: "ruler")
-                        Text(LocalizedStringKey("view_grade_scale"))
+                        Text("view_grade_scale")
                     }
                     .font(.subheadline)
                     .foregroundColor(.blue)
