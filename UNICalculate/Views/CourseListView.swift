@@ -130,36 +130,51 @@ struct CourseListView: View {
     // ✅ Güncellenmiş Ders Satırı
     private func courseRow(course: Course) -> some View {
         NavigationLink(destination: CourseDetailView(course: course)) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(course.name)
-                    .font(.headline)
-                
-                HStack {
-                    Text("Kredi:")
-                    Text(String(format: "%.1f", course.credits))
-                }
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                
-                // ✅ Ders Ortalaması ve Harf Notu
-                if course.letterGrade != nil{
-                    let average = course.average
-                    let letter = course.letterGrade!
+            HStack {
+                // SOL KISIM (Ders Adı, Kredi)
+                VStack(alignment: .leading, spacing: 4) {
+                    // Ders adı
+                    Text(course.name)
+                        .font(.headline)
+                    
+                    // Kredi bilgisi
                     HStack {
-                        Text("Ortalama:")
-                        Text(String(format: "%.1f", average))
-                            .bold()
-                        
-                        Spacer()
-                        
-                        Text("\(letter)/\(String(format: "%.2f", course.gpa ?? 0.0))")
-                            .bold()
-                            .foregroundColor(.blue)
+                        Text(LocalizedStringKey("credit")) // "Kredi"
+                        Text(String(format: "%.1f", course.credits))
                     }
                     .font(.subheadline)
+                    .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                // SAĞ KISIM (Ortalama + Harf Notu/GPA üst üste)
+                VStack(alignment: .trailing, spacing: 4) {
+                    
+                    // 1) Ortalama (Average)
+                    HStack {
+                        Text(LocalizedStringKey("average")) // "Ortalama"
+                        Text(String(format: "%.1f", course.average))
+                            .bold()
+                    }
+                    .font(.subheadline)
+                    
+                    // 2) Harf Notu + GPA
+                    //    - letterGrade ve gpa doluysa göster, aksi halde gizle
+                    // 2) Harf Notu + GPA
+                    if let letter = course.letterGrade {
+                        let gpaValue = course.gpa ?? 0.0
+                        HStack {
+                            Text("\(letter)/\(String(format: "%.2f", gpaValue))")
+                                .bold()
+                                .foregroundColor(.blue)
+                        }
+                        .font(.subheadline)
+                    }
                 }
             }
             .padding(.vertical, 8)
+            
         }
     }
     
