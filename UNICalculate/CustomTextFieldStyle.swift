@@ -1,21 +1,30 @@
 import SwiftUI
 
-struct CustomTextFieldModifier: ViewModifier {
-    @Environment(\.colorScheme) var colorScheme // Cihazın modunu algılar
+struct CustomTextField: ViewModifier {
+    @Environment(\.colorScheme) var colorScheme
+    var isFocused: Bool = false
     
     func body(content: Content) -> some View {
         content
-            .textFieldStyle(PlainTextFieldStyle())
-            .padding()
-            .background(colorScheme == .dark ? Color(.systemGray6) : Color.white) // Dark modda gri, light modda beyaz
-            .foregroundColor(colorScheme == .dark ? .white : .black) // Metin rengi: Dark modda beyaz, light modda siyah
-            .cornerRadius(10)
-            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.secondarySystemBackground))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isFocused ? Color.blue : Color(.systemGray4), lineWidth: isFocused ? 2 : 1)
+            )
+            .foregroundColor(Color(.label))
+            .accentColor(.blue)
+            .font(.system(.body, design: .default))
+            .contentShape(RoundedRectangle(cornerRadius: 12))
+            .animation(.easeInOut(duration: 0.2), value: isFocused))
     }
 }
-
+                
 extension View {
-    func customTextField() -> some View {
-        self.modifier(CustomTextFieldModifier())
+    func customTextField(isFocused: Bool = false) -> some View {
+        self.modifier(CustomTextField(isFocused: isFocused))
     }
 }

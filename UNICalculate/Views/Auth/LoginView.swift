@@ -3,58 +3,69 @@ import SwiftUI
 struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
-    @State private var keyboardHeight: CGFloat = 0
-    @State private var navigateToSignup = false
+    @State private var showSignup = false
+    @State private var showForgotPassword = false
+    @State private var showToast = false
+    @State private var toast: Toast?
     @FocusState private var focusedField: Field?
     @EnvironmentObject var authViewModel: AuthViewModel
-    @EnvironmentObject var languageManager: LanguageManager
+    @EnvironmentObject private var languageManager: LanguageManager
     
     enum Field {
         case email, password
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
-                backgroundGradient
+                Color(.systemBackground).ignoresSafeArea()
                 
-                VStack(spacing: 0) {
+                VStack(spacing: 20) {
+                    // Dil seçici üst toolbar
                     HStack {
                         Spacer()
-                        languageToggleButton
+                        languageSelector
                     }
+                    .padding(.horizontal)
                     
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            Spacer(minLength: 50)
-                            welcomeView
-                            formView
-                            loginButton
-                            signupPrompt
-                            Spacer(minLength: 20)
-                            footerView
-                        }
-                        .padding(.bottom, keyboardHeight)
-                    }
-                    .onTapGesture { focusedField = nil }
+                    Spacer()
+                    
+                    // Ana içerik
+                    welcomeView
+                    formView
+                    forgotPasswordButton
+                    loginButton
+                    signupPrompt
+                    
+                    Spacer()
+                }
+                .padding(.horizontal)
+                
+                // Toast mesajı
+                if showToast, let toast = toast {
+                    ToastView(toast: toast, isPresented: $showToast)
                 }
             }
-            .navigationBarHidden(true)
-            .fullScreenCover(isPresented: $navigateToSignup) {
-                SignupView(authViewModel: authViewModel)
-            }
         }
-        .onAppear(perform: setupKeyboardNotifications)
-        .onDisappear(perform: removeKeyboardNotifications)
+        .sheet(isPresented: $showSignup) {
+            SignupView()
+        }
+        .sheet(isPresented: $showForgotPassword) {
+            ForgotPasswordView()
+        }
+        .fullScreenCover(isPresented: $authViewModel.isAuthenticated) {
+            TermListView()
+        }
     }
     
-    private var languageToggleButton: some View {
+    // Dil seçici component
+    private var languageSelector: some View {
         Menu {
             Button(action: { languageManager.selectedLanguage = "tr" }) {
                 HStack {
                     Text("Türkçe")
                     if languageManager.selectedLanguage == "tr" {
-                        Image(systemName: "checkmark.circle.fill")
+                        Image(systemName: "checkmark")
                     }
                 }
             }
@@ -63,152 +74,134 @@ struct LoginView: View {
                 HStack {
                     Text("English")
                     if languageManager.selectedLanguage == "en" {
-                        Image(systemName: "checkmark.circle.fill")
+                        Image(systemName: "checkmark")
                     }
                 }
             }
         } label: {
-            HStack {
-                Text(languageManager.displayText)
+            HStack(spacing: 8) {
+                Image(systemName: "globe")
+                Text(LocalizedStringKey("language"))
                     .fontWeight(.medium)
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 14))
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Capsule().fill(Color.white.opacity(0.2)))
-            .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 0.5))
+            .background(Color.blue.opacity(0.15))
+            .foregroundColor(.blue)
+            .cornerRadius(20)
         }
-        .foregroundColor(.white)
-        .padding(.top, 50)
-        .padding(.trailing, 20)
     }
-    
-    // MARK: - UI Components
-    private var backgroundGradient: some View {
-        LinearGradient(
-            gradient: Gradient(colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)]),
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
-    }
-    
+
+    // Diğer componentler aynı kalıyor
     private var welcomeView: some View {
         Text(LocalizedStringKey("welcome_back"))
-            .font(.largeTitle)
-            .fontWeight(.bold)
-            .foregroundColor(.white)
+            .font(.system(size: 32, weight: .bold))
+            .padding(.bottom, 20)
     }
     
     private var formView: some View {
         VStack(spacing: 15) {
             TextField(LocalizedStringKey("email"), text: $email)
                 .customTextField()
+                .textContentType(.emailAddress)
                 .keyboardType(.emailAddress)
                 .autocapitalization(.none)
                 .focused($focusedField, equals: .email)
-                .frame(minHeight: 50)
             
             SecureField(LocalizedStringKey("password"), text: $password)
                 .customTextField()
+                .textContentType(.password)
                 .focused($focusedField, equals: .password)
-                .frame(minHeight: 50)
         }
-        .padding(.horizontal, 30)
+    }
+    
+    private var forgotPasswordButton: some View {
+        Button(action: { showForgotPassword = true }) {
+            Text(LocalizedStringKey("forgot_password"))
+                .foregroundColor(.blue)
+                .font(.subheadline)
+        }
     }
     
     private var loginButton: some View {
         Button(action: handleLogin) {
             Text(LocalizedStringKey("login"))
-                .fontWeight(.bold)
+                .fontWeight(.semibold)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.white)
-                .foregroundColor(Color.black)
+                .background(Color.blue)
+                .foregroundColor(.white)
                 .cornerRadius(10)
-                .shadow(radius: 5)
+                .shadow(radius: 2)
         }
-        .padding(.horizontal, 30)
-        .disabled(!isFormValid())
     }
     
     private var signupPrompt: some View {
         HStack {
             Text(LocalizedStringKey("no_account"))
-            Button(action: { navigateToSignup = true }) {
+            Button(action: { showSignup = true }) {
                 Text(LocalizedStringKey("signup"))
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.blue)
             }
         }
-    }
-    
-    private var footerView: some View {
-        Text("© 2024 UniCalculate")
-            .font(.footnote)
-            .foregroundColor(.white.opacity(0.7))
-            .padding(.bottom, 20)
-    }
-    
-    // MARK: - Helper Functions
-    private func isFormValid() -> Bool {
-        !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        .padding(.top, 10)
     }
     
     private func handleLogin() {
-        if validateForm() {
-            authViewModel.login(email: email, password: password)
+        guard validateForm() else { return }
+        
+        authViewModel.login(email: email, password: password) { success, errorMessage in
+            if success {
+                toast = Toast(message: LocalizedStringKey("login_successful"), type: .success)
+            } else {
+                handleLoginError(errorMessage)
+            }
+            showToast = true
         }
-        focusedField = nil
+    }
+    
+    private func handleLoginError(_ errorMessage: String?) {
+        if let errorMessage = errorMessage {
+            switch errorMessage {
+            case "error_email_not_verified":
+                toast = Toast(message: LocalizedStringKey("error_email_not_verified"), type: .error)
+            case "error_invalid_credentials":
+                toast = Toast(message: LocalizedStringKey("error_invalid_credentials"), type: .error)
+            default:
+                toast = Toast(message: LocalizedStringKey("error_unknown"), type: .error)
+            }
+        } else {
+            toast = Toast(message: LocalizedStringKey("error_unknown"), type: .error)
+        }
     }
     
     private func validateForm() -> Bool {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        if trimmedEmail.isEmpty {
-            authViewModel.errorMessageKey = "error_email_required"
+        guard !trimmedEmail.isEmpty else {
+            showErrorToast(message: "error_email_required")
             return false
         }
         
-        if !trimmedEmail.isValidEmail {
-            authViewModel.errorMessageKey = "error_invalid_email_format"
+        guard trimmedEmail.isValidEmail else {
+            showErrorToast(message: "error_invalid_email_format")
             return false
         }
         
-        if trimmedPassword.isEmpty {
-            authViewModel.errorMessageKey = "error_password_required"
+        guard !trimmedPassword.isEmpty else {
+            showErrorToast(message: "error_password_required")
             return false
         }
         
         return true
     }
     
-    // MARK: - Keyboard Management
-    private func setupKeyboardNotifications() {
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
-            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                keyboardHeight = keyboardFrame.height
-            }
-        }
-        
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-            keyboardHeight = 0
-        }
-    }
-    
-    private func removeKeyboardNotifications() {
-        NotificationCenter.default.removeObserver(self)
+    private func showErrorToast(message: String) {
+        toast = Toast(message: LocalizedStringKey(message), type: .error)
+        showToast = true
     }
 }
 
-// MARK: - Email Validation Extension
-extension String {
-    var isValidEmail: Bool {
-        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegex)
-        return emailPredicate.evaluate(with: self)
-    }
-}
+

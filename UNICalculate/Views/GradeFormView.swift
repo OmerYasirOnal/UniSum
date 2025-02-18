@@ -7,7 +7,7 @@ struct GradeFormView: View {
     let grade: Grade?
     @ObservedObject var viewModel: GradeViewModel
     @Environment(\.dismiss) var dismiss
-    
+
     @State private var gradeType: String
     @State private var selectedGradeType: GradeType = .custom
     @State private var score: Double
@@ -16,37 +16,37 @@ struct GradeFormView: View {
     @State private var alertMessage = ""
     @State private var isScorePickerVisible = false
     @State private var isWeightPickerVisible = false
-    
+
     // MARK: - Grade Types
     private enum GradeType: String, CaseIterable {
-        case midterm1 = "Midterm 1"
-        case midterm2 = "Midterm 2"
-        case final = "Final"
-        case quiz = "Quiz"
-        case project = "Project"
-        case homework = "Homework"
-        case presentation = "Presentation"
-        case custom = "Custom"
-        
+        case midterm = "grade_type_midterm"
+        case final = "grade_type_final"
+        case quiz1 = "grade_type_quiz1"
+        case quiz2 = "grade_type_quiz2"
+        case project = "grade_type_project"
+        case homework = "grade_type_homework"
+        case presentation = "grade_type_presentation"
+        case custom = "grade_type_custom"
+
         var localizedName: LocalizedStringKey {
-            LocalizedStringKey(rawValue)
+            LocalizedStringKey(self.rawValue)
         }
     }
-    
+
     // MARK: - Initialization
     init(title: String, courseId: Int, grade: Grade? = nil, viewModel: GradeViewModel) {
         self.title = title
         self.courseId = courseId
         self.grade = grade
         self.viewModel = viewModel
-        
+
         let initialGradeType = grade?.gradeType ?? ""
         _gradeType = State(initialValue: initialGradeType)
         _selectedGradeType = State(initialValue: GradeType.allCases.first { $0.rawValue == initialGradeType } ?? .custom)
         _score = State(initialValue: grade?.score ?? 50.0)
         _weight = State(initialValue: grade?.weight ?? 10.0)
     }
-    
+
     // MARK: - Computed Properties
     private var remainingWeight: Double {
         if let grade = grade {
@@ -57,7 +57,7 @@ struct GradeFormView: View {
             return 100 - currentTotal
         }
     }
-    
+
     // MARK: - Body
     var body: some View {
         NavigationView {
@@ -68,8 +68,8 @@ struct GradeFormView: View {
             .navigationTitle(LocalizedStringKey(title))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
-            .alert(LocalizedStringKey("warning"), isPresented: $showAlert) {
-                Button(LocalizedStringKey("ok"), role: .cancel) { }
+            .alert(LocalizedStringKey("alert_warning"), isPresented: $showAlert) {
+                Button(LocalizedStringKey("alert_ok"), role: .cancel) { }
             } message: {
                 Text(LocalizedStringKey(alertMessage))
             }
@@ -85,11 +85,11 @@ struct GradeFormView: View {
             }
         }
     }
-    
+
     // MARK: - Section Views
     private var gradeTypeSection: some View {
-        Section(header: Text(LocalizedStringKey("grade_type"))) {
-            Picker(LocalizedStringKey("select_type"), selection: $selectedGradeType) {
+        Section(header: Text(LocalizedStringKey("section_grade_type"))) {
+            Picker(LocalizedStringKey("picker_select_type"), selection: $selectedGradeType) {
                 ForEach(GradeType.allCases, id: \.self) { type in
                     Text(type.localizedName).tag(type)
                 }
@@ -101,14 +101,14 @@ struct GradeFormView: View {
             }
             
             if selectedGradeType == .custom {
-                TextField(LocalizedStringKey("enter_custom_type"), text: $gradeType)
+                TextField(LocalizedStringKey("textfield_enter_custom_type"), text: $gradeType)
                     .textInputAutocapitalization(.words)
             }
         }
     }
     
     private var scoreAndWeightSection: some View {
-        Section(header: Text(LocalizedStringKey("score_and_weight"))) {
+        Section(header: Text(LocalizedStringKey("section_score_and_weight"))) {
             scoreRow
             weightRow
         }
@@ -116,7 +116,7 @@ struct GradeFormView: View {
     
     private var scoreRow: some View {
         HStack {
-            Text(LocalizedStringKey("score"))
+            Text(LocalizedStringKey("label_score"))
             Spacer()
             Text("\(Int(score))")
                 .foregroundColor(.blue)
@@ -131,9 +131,9 @@ struct GradeFormView: View {
     
     private var weightRow: some View {
         HStack {
-            Text(LocalizedStringKey("weight"))
+            Text(LocalizedStringKey("label_weight"))
             Spacer()
-            Text("\(Int(weight))% / Available: \(Int(remainingWeight))%")
+            Text("\(Int(weight))% / \(NSLocalizedString("label_available", comment: "")): \(Int(remainingWeight))%")
                 .foregroundColor(weight > remainingWeight ? .red : .blue)
             Button {
                 isWeightPickerVisible = true
@@ -167,7 +167,7 @@ struct GradeFormView: View {
         let totalAfterChange = viewModel.totalWeight(forCourse: courseId, excluding: grade?.id) + weight
         
         if totalAfterChange > 100 {
-            alertMessage = "Total weight cannot exceed 100%. Available weight: \(Int(remainingWeight))%"
+            alertMessage = "alert_total_weight_exceeded \(Int(remainingWeight))"
             showAlert = true
             return
         }
@@ -222,7 +222,7 @@ struct ScorePickerView: View {
         NavigationView {
             List {
                 Section {
-                    Picker(LocalizedStringKey("score"), selection: $score) {
+                    Picker(LocalizedStringKey("picker_score"), selection: $score) {
                         ForEach(0...100, id: \.self) { value in
                             Text("\(value)").tag(Double(value))
                         }
@@ -230,11 +230,11 @@ struct ScorePickerView: View {
                     .pickerStyle(.wheel)
                 }
             }
-            .navigationTitle(LocalizedStringKey("select_score"))
+            .navigationTitle(LocalizedStringKey("nav_select_score"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(LocalizedStringKey("done")) { dismiss() }
+                    Button(LocalizedStringKey("button_done")) { dismiss() }
                 }
             }
         }
@@ -255,17 +255,17 @@ struct WeightPickerView: View {
         NavigationView {
             List {
                 Section {
-                    Picker(LocalizedStringKey("weight"), selection: $weight) {
+                    Picker(LocalizedStringKey("picker_weight"), selection: $weight) {
                         ForEach(0...Int(min(100, maxAllowedWeight)), id: \.self) { value in
                             Text("\(value)%").tag(Double(value))
                         }
                     }
                     .pickerStyle(.wheel)
                 } footer: {
-                    Text("Available weight: \(Int(remainingWeight))%")
+                    Text("\(NSLocalizedString("label_available_weight", comment: "")): \(Int(remainingWeight))%")
                 }
             }
-            .navigationTitle(LocalizedStringKey("select_weight"))
+            .navigationTitle(LocalizedStringKey("nav_select_weight"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

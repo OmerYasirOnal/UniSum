@@ -7,35 +7,31 @@ struct SidebarView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Profile Header
+            // Profil Başlık: Kullanıcının email bilgisini gösteriyoruz.
             VStack(spacing: 8) {
                 Image(systemName: "person.circle.fill")
                     .resizable()
-                    .frame(width: 45, height: 45)
+                    .frame(width: 60, height: 60)
                     .foregroundColor(Color.accentColor)
-                    .padding(.top, 8)
+                    .padding(.top, 16)
                 
-                Text(authViewModel.user?.email ?? "User")
+                Text(authViewModel.user?.email ?? "No Email")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.primary)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
+            .padding(.vertical, 20)
             .background(colorScheme == .dark ? Color(.systemGray6) : .white)
             
             Divider()
             
-            // Menu Items
+            // Menü Elemanları: Sadece Profil ve Çıkış Yap
             ScrollView {
                 VStack(spacing: 0) {
                     NavigationLink(destination: ProfileView()) {
                         MenuItemView(icon: "person.fill", title: "profile")
-                    }
-                    
-                    NavigationLink(destination: SettingsView()) {
-                        MenuItemView(icon: "gearshape.fill", title: "settings")
                     }
                     
                     Divider()
@@ -72,7 +68,6 @@ struct SidebarView: View {
     }
 }
 
-// MARK: - Menu Item View
 struct MenuItemView: View {
     let icon: String
     let title: LocalizedStringKey

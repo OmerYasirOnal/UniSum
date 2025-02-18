@@ -1,11 +1,12 @@
 import SwiftUI
 
+import SwiftUI
+
 struct CourseListView: View {
     @StateObject private var viewModel = CourseViewModel()
     let term: Term
     @State private var selectedCourse: Course? = nil
     @State private var isAddCourseViewVisible = false
-    @State private var isEditing = false
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -25,9 +26,8 @@ struct CourseListView: View {
         }
         .navigationTitle("Dersler")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { toolbarContent }
         .onAppear {
-            viewModel.fetchCourses(for: term.id) // ✅ Dersleri çek
+            viewModel.fetchCourses(for: term.id)
         }
         .onChange(of: selectedCourse) { course in
             if let course = course {
@@ -59,12 +59,18 @@ struct CourseListView: View {
                 courseList
             }
             
-            termAverageSection
-            addButton
+            Spacer()
+            
+            // Her durumda gösterilecek kısım
+            VStack(spacing: 0) {
+                termAverageSection
+                addButton
+                    .padding(.top, 20)
+            }
         }
     }
     
-    // MARK: - Term GPA Section
+    // MARK: - Term GPA Section (Değişmedi)
     private var termAverageSection: some View {
         VStack(spacing: 12) {
             if viewModel.isLoadingGPA {
@@ -72,7 +78,6 @@ struct CourseListView: View {
                     .padding()
             } else {
                 HStack(spacing: 20) {
-                    // Dönem Ortalaması Kartı
                     VStack(alignment: .center, spacing: 4) {
                         Text(LocalizedStringKey("term_average"))
                             .font(.subheadline)
@@ -90,7 +95,6 @@ struct CourseListView: View {
                             .shadow(color: Color.black.opacity(0.1), radius: 3)
                     )
                     
-                    // Toplam Kredi Kartı
                     VStack(alignment: .center, spacing: 4) {
                         Text(LocalizedStringKey("total_credits"))
                             .font(.subheadline)
@@ -196,7 +200,7 @@ struct CourseListView: View {
             Text("Henüz ders eklenmemiş")
                 .font(.headline)
                 .foregroundColor(.gray)
-        }
+        }.padding(5)
     }
     
     private var addButton: some View {
@@ -209,13 +213,7 @@ struct CourseListView: View {
         .padding(.bottom, 30)
     }
     
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button(isEditing ? "Bitti" : "Düzenle") {
-                withAnimation { isEditing.toggle() }
-            }
-        }
-    }
+    
     
     // MARK: - Ders Silme
     private func handleDelete(at indexSet: IndexSet) {

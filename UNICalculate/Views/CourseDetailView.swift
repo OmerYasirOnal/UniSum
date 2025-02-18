@@ -62,13 +62,13 @@ struct CourseDetailView: View {
             switch sheet {
             case .addGrade:
                 GradeFormView(
-                    title: String(localized: "add_grade"),
+                    title: NSLocalizedString("add_grade", comment: ""),
                     courseId: course.id,
                     viewModel: gradeViewModel
                 )
             case .editGrade(let grade):
                 GradeFormView(
-                    title: String(localized: "edit_grade"),
+                    title: NSLocalizedString("edit_grade", comment: ""),
                     courseId: course.id,
                     grade: grade,
                     viewModel: gradeViewModel
@@ -110,7 +110,7 @@ struct CourseDetailView: View {
                 Text(LocalizedStringKey("grades"))
                 Spacer()
                 Text(String(
-                    format: String(localized: "remaining_weight"),
+                    format: NSLocalizedString("remaining_weight", comment: ""),
                     Int(gradeViewModel.remainingWeight(forCourse: course.id))
                 ))
                 .font(.caption)
