@@ -9,6 +9,9 @@ struct TermListView: View {
     @State private var navigationPath = NavigationPath()
     @Environment(\.colorScheme) var colorScheme
     
+    // Sınıf seviyelerini belirli sırayla gösterebilmek için
+    private let classLevelOrder: [String] = ["pre", "1", "2", "3", "4"]
+    
     // MARK: - Body
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -37,6 +40,7 @@ struct TermListView: View {
         }
     }
     
+    /// İçerik: Yükleniyor, hata, boş liste veya dönemler gruplaması
     private var contentView: some View {
         VStack(spacing: 0) {
             if viewModel.isLoading {
@@ -83,52 +87,58 @@ struct TermListView: View {
         }
     }
     
-    // MARK: - Term List
+    // MARK: - Gruplanmış Liste
     private var termListView: some View {
-        List {
-            ForEach(viewModel.terms) { term in
-                termListRow(term: term)
+        // 1) Dönemleri classLevel'a göre grupla
+        let groupedTerms = Dictionary(grouping: viewModel.terms, by: { $0.classLevel })
+        
+        return List {
+            // 2) Belirlediğimiz sıraya göre her classLevel için Section aç
+            ForEach(classLevelOrder, id: \.self) { level in
+                let termsForLevel = groupedTerms[level] ?? []
+                
+                // 3) Bu level’da dönem varsa Section oluştur
+                if !termsForLevel.isEmpty {
+                    Section(header: Text(localizedClassLevelName(for: level))) {
+                        // 4) “Dönem X” satırları
+                        ForEach(termsForLevel) { term in
+                            NavigationLink(destination: CourseListView(term: term)) {
+                                Text(String(format: NSLocalizedString("term_format", comment: ""), term.termNumber))
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                    .padding(.vertical, 8)
+                            }
+                        }
+                        // 5) Silme işlemi (Section içinde)
+                        .onDelete { offsets in
+                            for offset in offsets {
+                                let term = termsForLevel[offset]
+                                viewModel.deleteTerm(termId: term.id) { _ in }
+                            }
+                        }
+                    }
+                }
             }
-            .onDelete(perform: deleteTerm)
         }
         .listStyle(PlainListStyle())
     }
     
-    private func termListRow(term: Term) -> some View {
-        NavigationLink(destination: CourseListView(term: term)) {
-            termRow(term: term)
+    // MARK: - Yardımcı: class_level -> Localizable
+    private func localizedClassLevelName(for level: String) -> LocalizedStringKey {
+        switch level {
+        case "pre":
+            return "class_level_pre"
+        case "1":
+            return "class_level_1"
+        case "2":
+            return "class_level_2"
+        case "3":
+            return "class_level_3"
+        case "4":
+            return "class_level_4"
+        default:
+            return LocalizedStringKey(level)
         }
-    }
-    
-    private func deleteTerm(at offsets: IndexSet) {
-        offsets.forEach { index in
-            let term = viewModel.terms[index]
-            viewModel.deleteTerm(termId: term.id) { _ in }
-        }
-    }
-    
-    private func termRow(term: Term) -> some View {
-        VStack(alignment: .leading) {
-            Text("Dönem \(term.termNumber)")
-                .font(.headline)
-                .foregroundColor(.primary)
-            
-            HStack {
-                Text(LocalizedStringKey("class_level"))
-                Text("\(term.classLevel)")
-            }
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-        }
-        .padding(.vertical, 8)
-    }
-    
-    private func deleteButton(for term: Term) -> some View {
-        Button(action: { deleteTerm(term) }) {
-            Image(systemName: "minus.circle.fill")
-                .foregroundColor(.red)
-        }
-        .buttonStyle(BorderlessButtonStyle())
     }
     
     // MARK: - Supporting Views
@@ -207,8 +217,5 @@ struct TermListView: View {
             isAddTermViewVisible = true
         }
     }
-    
-    private func deleteTerm(_ term: Term) {
-        viewModel.deleteTerm(termId: term.id) { _ in }
-    }
+
 }

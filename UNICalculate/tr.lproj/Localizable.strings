@@ -132,7 +132,7 @@
 "grade_type_homework" = "Ödev";
 "grade_type_presentation" = "Sunum";
 "grade_type_custom" = "Özel";
-
+"term_format" = "Dönem %d";
 /* Bölümler ve Seçiciler */
 "section_grade_type" = "Not Türü";
 "picker_select_type" = "Not Türü Seçiniz";

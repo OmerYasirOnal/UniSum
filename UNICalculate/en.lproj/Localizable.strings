@@ -19,7 +19,7 @@
 "delete" = "Delete";
 "ok" = "OK";
 "done" = "Done";
-
+"term_format" = "Term %d";
 /* Terms and Courses */
 "terms" = "Terms";
 "your_terms" = "Your Terms";
