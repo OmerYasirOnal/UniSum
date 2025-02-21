@@ -203,8 +203,9 @@ struct CourseDetailView: View {
     private func gradeRowView(grade: Grade) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(grade.gradeType)
+                Text(LocalizedStringKey(grade.gradeType))
                     .font(.headline)
+
                 HStack {
                     Text("\(grade.score, specifier: "%.1f")")
                         .foregroundColor(.primary)
