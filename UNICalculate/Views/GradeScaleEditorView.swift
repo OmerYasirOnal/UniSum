@@ -25,12 +25,12 @@ struct GradeScaleEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(LocalizedStringKey("cancel")) {
                         dismiss()
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
+                    Button(LocalizedStringKey("save")) {
                         viewModel.saveGradeScales { success in
                             if success {
                                 dismiss()

@@ -20,6 +20,7 @@
 "ok" = "OK";
 "done" = "Done";
 "term_format" = "Term %d";
+
 /* Terms and Courses */
 "terms" = "Terms";
 "your_terms" = "Your Terms";
@@ -95,7 +96,7 @@
 "error_department_required" = "Department name is required.";
 "invalid_credits" = "Invalid credits value.";
 "course_add_error" = "Failed to add course.";
-"weight_exceed_error" = "Total weight cannot exceed 100%%. Available weight: %d%%.";
+"weight_exceed_error" = "Total weight cannot exceed 100%%. Available weight: %d%%";
 "term_average" = "Term Average";
 "total_credits" = "Total Credits";
 "forgot_password" = "Forgot Password?";
@@ -123,7 +124,7 @@
 
 /* Other */
 "system_default" = "default";
-"ACCOUNT_İNFORMATİON" = "Account Informations";
+"account_information" = "Account Information";
 
 /* Grade Types */
 "grade_type_midterm" = "Midterm";
@@ -151,4 +152,3 @@
 "picker_weight" = "Weight";
 "label_available_weight" = "Available Weight";
 "nav_select_weight" = "Select Weight";
-

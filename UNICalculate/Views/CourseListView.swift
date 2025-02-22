@@ -1,7 +1,5 @@
 import SwiftUI
 
-import SwiftUI
-
 struct CourseListView: View {
     @StateObject private var viewModel = CourseViewModel()
     let term: Term
@@ -24,7 +22,7 @@ struct CourseListView: View {
                 .transition(.scale)
             }
         }
-        .navigationTitle("Dersler")
+        .navigationTitle(LocalizedStringKey("courses"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.fetchCourses(for: term.id)

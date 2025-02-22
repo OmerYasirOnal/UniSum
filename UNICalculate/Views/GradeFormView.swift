@@ -234,7 +234,7 @@ struct ScorePickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(LocalizedStringKey("button_done")) { dismiss() }
+                    Button(LocalizedStringKey("done")) { dismiss() }
                 }
             }
         }

@@ -22,7 +22,7 @@
 
 /* Dönem ve Dersler */
 "terms" = "Dönemler";
-"your_terms" = "Dönemleriniz";
+"your_terms" = "Dönemler";
 "no_terms_available" = "Dönem Bulunamadı";
 "add_new_term" = "Yeni Dönem Ekle";
 "term_number" = "Dönem:";
@@ -121,7 +121,7 @@
 "error_passwords_do_not_match" = "Şifreler eşleşmiyor.";
 "reset_password_instructions" = "Şifresini sıfırlamak istediğiniz, mail adresini giriniz.";
 "system_default" = "varsayılan";
-"ACCOUNT_İNFORMATİON" = "Hesap Bilgileri";
+"account_information" = "Hesap Bilgileri";
 
 /* Not Türleri */
 "grade_type_midterm" = "Vize";
@@ -133,6 +133,7 @@
 "grade_type_presentation" = "Sunum";
 "grade_type_custom" = "Özel";
 "term_format" = "Dönem %d";
+
 /* Bölümler ve Seçiciler */
 "section_grade_type" = "Not Türü";
 "picker_select_type" = "Not Türü Seçiniz";
