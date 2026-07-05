@@ -19,6 +19,7 @@
 "delete" = "Sil";
 "ok" = "Tamam";
 "done" = "Bitti";
+"add" = "Ekle";
 
 /* Dönem ve Dersler */
 "terms" = "Dönemler";
@@ -150,4 +151,18 @@
 "picker_weight" = "Ağırlık";
 "label_available_weight" = "Kalan Ağırlık";
 "nav_select_weight" = "Ağırlık Seçiniz";
+
+/* Yeni: boş durumlar, dil adları, uyarılar, not skalası */
+"no_courses_yet" = "Henüz ders eklenmemiş";
+"no_terms_message" = "İlk dönemini eklemek için + butonuna dokun.";
+"turkish" = "Türkçe";
+"english" = "İngilizce";
+"alert_warning" = "Uyarı";
+"alert_ok" = "Tamam";
+"credits_too_high" = "Kredi değeri çok yüksek.";
+"edit_grade_scale" = "Not Skalasını Düzenle";
+"minimum_score" = "Minimum Puan";
+"gpa_value" = "GPA Değeri";
+"light" = "Açık";
+"dark" = "Koyu";
 

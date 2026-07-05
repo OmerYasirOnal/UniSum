@@ -3,83 +3,122 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var languageManager: LanguageManager
-    @AppStorage("selectedTheme") private var selectedTheme: String = "system" // "system", "light", "dark"
-    
+    @AppStorage("selectedTheme") private var selectedTheme: String = "system"
+
     var body: some View {
-        NavigationView {
-            Form {
-                // Hesap Bilgileri Bölümü
-                Section(header: Text(LocalizedStringKey("account_information"))) {
-                    HStack {
-                        Text(LocalizedStringKey("email"))
-                        Spacer()
-                        Text(authViewModel.user?.email ?? "N/A")
-                            .foregroundColor(.secondary)
-                    }
-                    HStack {
-                        Text(LocalizedStringKey("university"))
-                        Spacer()
-                        Text(authViewModel.user?.university ?? "N/A")
-                            .foregroundColor(.secondary)
-                    }
-                    HStack {
-                        Text(LocalizedStringKey("department"))
-                        Spacer()
-                        Text(authViewModel.user?.department ?? "N/A")
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                // Dil Seçimi Bölümü
-                Section(header: Text(LocalizedStringKey("language"))) {
-                    Picker(LocalizedStringKey("select_language"), selection: $languageManager.selectedLanguage) {
-                        Text("🇺🇸 " + LocalizedStringKey("english").stringValue)
-                            .tag("en")
-                        Text("🇹🇷 " + LocalizedStringKey("turkish").stringValue)
-                            .tag("tr")
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                
-                // Tema / Görünüm Seçimi Bölümü
-                Section(header: Text(LocalizedStringKey("appearance"))) {
-                    Picker(LocalizedStringKey("theme"), selection: $selectedTheme) {
-                        Text(LocalizedStringKey("system_default"))
-                            .tag("system")
-                        Text(LocalizedStringKey("light"))
-                            .tag("light")
-                        Text(LocalizedStringKey("dark"))
-                            .tag("dark")
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
+        ScrollView {
+            VStack(spacing: DS.Spacing.md) {
+                avatarHeader
+                accountCard
+                languageCard
+                appearanceCard
             }
-            .navigationTitle(LocalizedStringKey("profile"))
+            .padding(.horizontal, DS.Spacing.md)
+            .padding(.vertical, DS.Spacing.md)
         }
+        .background(Color.appBackground.ignoresSafeArea())
+        .navigationTitle(LocalizedStringKey("profile"))
+        .navigationBarTitleDisplayMode(.inline)
         .preferredColorScheme(colorSchemeForSelectedTheme())
     }
-    
-    private func colorSchemeForSelectedTheme() -> ColorScheme? {
-        switch selectedTheme {
-        case "light":
-            return .light
-        case "dark":
-            return .dark
-        default:
-            return nil
-        }
-    }
-}
 
-// LocalizedStringKey'den string değer çekmek için yardımcı genişletme
-extension LocalizedStringKey {
-    var stringValue: String {
-        let mirror = Mirror(reflecting: self)
-        for child in mirror.children {
-            if child.label == "key", let value = child.value as? String {
-                return value
+    // MARK: - Avatar header
+    private var avatarHeader: some View {
+        VStack(spacing: DS.Spacing.sm) {
+            ZStack {
+                Circle()
+                    .fill(LinearGradient.brand)
+                    .frame(width: 84, height: 84)
+                Text(initials)
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+            }
+            .brandGlow(radius: 18, y: 8, opacity: 0.35)
+
+            Text(authViewModel.user?.email ?? "N/A")
+                .font(.headline)
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+
+            if let department = authViewModel.user?.department, !department.isEmpty {
+                Text(department)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Color.brandOnTint)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(Capsule().fill(Color.brandTint))
             }
         }
-        return ""
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, DS.Spacing.lg)
+        .card(padding: DS.Spacing.lg)
+    }
+
+    private var initials: String {
+        let email = authViewModel.user?.email ?? "?"
+        return String(email.prefix(1)).uppercased()
+    }
+
+    // MARK: - Account info
+    private var accountCard: some View {
+        VStack(spacing: 0) {
+            infoRow(title: "email", value: authViewModel.user?.email ?? "N/A")
+            Divider()
+            infoRow(title: "university", value: authViewModel.user?.university ?? "N/A")
+            Divider()
+            infoRow(title: "department", value: authViewModel.user?.department ?? "N/A")
+        }
+        .card(padding: 0)
+    }
+
+    private func infoRow(title: LocalizedStringKey, value: String) -> some View {
+        HStack(spacing: DS.Spacing.md) {
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: DS.Spacing.md)
+            Text(value)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.trailing)
+                .lineLimit(2)
+        }
+        .padding(.horizontal, DS.Spacing.md)
+        .padding(.vertical, DS.Spacing.md)
+    }
+
+    // MARK: - Language
+    private var languageCard: some View {
+        VStack(alignment: .leading, spacing: DS.Spacing.sm) {
+            SectionHeaderLabel(title: "language", systemImage: "globe")
+            Picker(LocalizedStringKey("select_language"), selection: $languageManager.selectedLanguage) {
+                (Text("🇺🇸 ") + Text(LocalizedStringKey("english"))).tag("en")
+                (Text("🇹🇷 ") + Text(LocalizedStringKey("turkish"))).tag("tr")
+            }
+            .pickerStyle(.segmented)
+        }
+        .card()
+    }
+
+    // MARK: - Appearance
+    private var appearanceCard: some View {
+        VStack(alignment: .leading, spacing: DS.Spacing.sm) {
+            SectionHeaderLabel(title: "appearance", systemImage: "paintbrush")
+            Picker(LocalizedStringKey("theme"), selection: $selectedTheme) {
+                Text(LocalizedStringKey("system_default")).tag("system")
+                Text(LocalizedStringKey("light")).tag("light")
+                Text(LocalizedStringKey("dark")).tag("dark")
+            }
+            .pickerStyle(.segmented)
+        }
+        .card()
+    }
+
+    private func colorSchemeForSelectedTheme() -> ColorScheme? {
+        switch selectedTheme {
+        case "light": return .light
+        case "dark":  return .dark
+        default:      return nil
+        }
     }
 }

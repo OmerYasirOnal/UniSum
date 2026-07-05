@@ -71,7 +71,7 @@ struct GradeFormView: View {
             .alert(LocalizedStringKey("alert_warning"), isPresented: $showAlert) {
                 Button(LocalizedStringKey("alert_ok"), role: .cancel) { }
             } message: {
-                Text(LocalizedStringKey(alertMessage))
+                Text(alertMessage)
             }
             .sheet(isPresented: $isScorePickerVisible) {
                 ScorePickerView(score: $score)
@@ -119,31 +119,33 @@ struct GradeFormView: View {
             Text(LocalizedStringKey("label_score"))
             Spacer()
             Text("\(Int(score))")
-                .foregroundColor(.blue)
+                .fontWeight(.semibold)
+                .foregroundStyle(Color.brandPrimary)
             Button {
                 isScorePickerVisible = true
             } label: {
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
+                    .foregroundStyle(Color.textSecondary)
             }
         }
     }
-    
+
     private var weightRow: some View {
         HStack {
             Text(LocalizedStringKey("label_weight"))
             Spacer()
             Text("\(Int(weight))% / \(NSLocalizedString("label_available", comment: "")): \(Int(remainingWeight))%")
-                .foregroundColor(weight > remainingWeight ? .red : .blue)
+                .fontWeight(.semibold)
+                .foregroundStyle(weight > remainingWeight ? Color.dangerRed : Color.brandPrimary)
             Button {
                 isWeightPickerVisible = true
             } label: {
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
+                    .foregroundStyle(Color.textSecondary)
             }
         }
     }
-    
+
     // MARK: - Toolbar Content
     private var toolbarContent: some ToolbarContent {
         Group {
@@ -167,7 +169,7 @@ struct GradeFormView: View {
         let totalAfterChange = viewModel.totalWeight(forCourse: courseId, excluding: grade?.id) + weight
         
         if totalAfterChange > 100 {
-            alertMessage = "alert_total_weight_exceeded \(Int(remainingWeight))"
+            alertMessage = String(format: NSLocalizedString("weight_exceed_error", comment: ""), Int(remainingWeight))
             showAlert = true
             return
         }

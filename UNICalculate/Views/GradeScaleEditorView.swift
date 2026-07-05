@@ -64,20 +64,29 @@ struct GradeScaleRow: View {
     }
     
     var body: some View {
-        HStack {
-            Text(scale.letter)
-                .bold()
-                .frame(width: 40)
-            
-            TextField("Min Score", text: $minScore)
-                .keyboardType(.numberPad)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onChange(of: minScore) { _ in updateScale() }
-            
-            TextField("GPA", text: $gpa)
-                .keyboardType(.decimalPad)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onChange(of: gpa) { _ in updateScale() }
+        HStack(spacing: DS.Spacing.md) {
+            GradeBadge(letter: scale.letter, gpa: scale.gpa)
+                .frame(width: 52, alignment: .leading)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(LocalizedStringKey("minimum_score"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                TextField(LocalizedStringKey("minimum_score"), text: $minScore)
+                    .keyboardType(.numberPad)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .onChange(of: minScore) { _ in updateScale() }
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(LocalizedStringKey("gpa_value"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                TextField(LocalizedStringKey("gpa_value"), text: $gpa)
+                    .keyboardType(.decimalPad)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .onChange(of: gpa) { _ in updateScale() }
+            }
         }
         .padding(.vertical, 4)
     }

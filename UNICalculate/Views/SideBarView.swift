@@ -4,87 +4,96 @@ struct SidebarView: View {
     @Binding var isVisible: Bool
     @EnvironmentObject var authViewModel: AuthViewModel
     @Environment(\.colorScheme) var colorScheme
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            // Profil Başlık: Kullanıcının email bilgisini gösteriyoruz.
-            VStack(spacing: 8) {
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .frame(width: 60, height: 60)
-                    .foregroundColor(Color.accentColor)
-                    .padding(.top, 16)
-                
-                Text(authViewModel.user?.email ?? "No Email")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 20)
-            .background(colorScheme == .dark ? Color(.systemGray6) : .white)
-            
-            Divider()
-            
-            // Menü Elemanları: Sadece Profil ve Çıkış Yap
+            profileHeader
+
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(spacing: DS.Spacing.xxs) {
                     NavigationLink(destination: ProfileView()) {
                         MenuItemView(icon: "person.fill", title: "profile")
                     }
-                    
-                    Divider()
-                        .padding(.vertical, 10)
-                    
-                    Button(action: {
-                        authViewModel.logout()
-                    }) {
+
+                    Button(action: { authViewModel.logout() }) {
                         MenuItemView(
                             icon: "rectangle.portrait.and.arrow.right",
                             title: "logout",
-                            iconColor: .red,
-                            textColor: .red
+                            iconColor: .dangerRed,
+                            textColor: .dangerRed
                         )
                     }
                 }
-                .padding(.vertical, 10)
+                .padding(.top, DS.Spacing.md)
             }
-            
+
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.cardBackground.ignoresSafeArea())
         .gesture(
             DragGesture()
                 .onEnded { gesture in
                     if gesture.translation.width < -50 {
-                        withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) {
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                             isVisible = false
                         }
                     }
                 }
         )
-        .background(colorScheme == .dark ? Color(.systemGray6) : .white)
-        .frame(maxHeight: .infinity)
+    }
+
+    private var profileHeader: some View {
+        VStack(spacing: DS.Spacing.sm) {
+            ZStack {
+                Circle()
+                    .fill(.white.opacity(0.22))
+                    .frame(width: 66, height: 66)
+                Image(systemName: "person.fill")
+                    .font(.system(size: 30, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
+
+            VStack(spacing: 2) {
+                Text(authViewModel.user?.email ?? "No Email")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                if let university = authViewModel.user?.university, !university.isEmpty {
+                    Text(university)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.85))
+                        .lineLimit(1)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 64)
+        .padding(.bottom, DS.Spacing.lg)
+        .padding(.horizontal, DS.Spacing.md)
+        .background(LinearGradient.brand.ignoresSafeArea(edges: .top))
     }
 }
 
 struct MenuItemView: View {
     let icon: String
     let title: LocalizedStringKey
-    var iconColor: Color = .primary
+    var iconColor: Color = .brandPrimary
     var textColor: Color = .primary
-    
+
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: DS.Spacing.md) {
             Image(systemName: icon)
-                .foregroundColor(iconColor)
-                .frame(width: 24)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(iconColor)
+                .frame(width: 26)
             Text(title)
-                .foregroundColor(textColor)
-                .font(.subheadline)
+                .font(.body.weight(.medium))
+                .foregroundStyle(textColor)
             Spacer()
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .padding(.horizontal, DS.Spacing.lg)
+        .padding(.vertical, DS.Spacing.md)
+        .contentShape(Rectangle())
     }
 }
