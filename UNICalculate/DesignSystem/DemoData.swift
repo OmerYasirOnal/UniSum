@@ -43,21 +43,21 @@ enum DemoData {
         switch termId {
         case 2:
             return [
-                Course(id: 101, termId: 2, userId: 1, name: "Calculus I", credits: 6, average: 88, letterGrade: "BA", gpa: 3.5),
-                Course(id: 102, termId: 2, userId: 1, name: "Physics I", credits: 5, average: 76, letterGrade: "BB", gpa: 3.0),
-                Course(id: 103, termId: 2, userId: 1, name: "Introduction to Programming", credits: 4, average: 93, letterGrade: "AA", gpa: 4.0),
+                Course(id: 101, termId: 2, userId: 1, name: "Kalkülüs I", credits: 6, average: 88, letterGrade: "BA", gpa: 3.5),
+                Course(id: 102, termId: 2, userId: 1, name: "Fizik I", credits: 5, average: 76, letterGrade: "BB", gpa: 3.0),
+                Course(id: 103, termId: 2, userId: 1, name: "Programlamaya Giriş", credits: 4, average: 93, letterGrade: "AA", gpa: 4.0),
                 Course(id: 104, termId: 2, userId: 1, name: "Türk Dili I", credits: 2, average: 64, letterGrade: "CB", gpa: 2.5)
             ]
         case 3:
             return [
-                Course(id: 201, termId: 3, userId: 1, name: "Calculus II", credits: 6, average: 71, letterGrade: "BB", gpa: 3.0),
-                Course(id: 202, termId: 3, userId: 1, name: "Data Structures", credits: 5, average: 96, letterGrade: "AA", gpa: 4.0),
-                Course(id: 203, termId: 3, userId: 1, name: "Linear Algebra", credits: 4, average: 58, letterGrade: "DC", gpa: 1.5)
+                Course(id: 201, termId: 3, userId: 1, name: "Kalkülüs II", credits: 6, average: 71, letterGrade: "BB", gpa: 3.0),
+                Course(id: 202, termId: 3, userId: 1, name: "Veri Yapıları", credits: 5, average: 96, letterGrade: "AA", gpa: 4.0),
+                Course(id: 203, termId: 3, userId: 1, name: "Lineer Cebir", credits: 4, average: 58, letterGrade: "DC", gpa: 1.5)
             ]
         case 4:
             return [
-                Course(id: 301, termId: 4, userId: 1, name: "Algorithms", credits: 6, average: 84, letterGrade: "BA", gpa: 3.5),
-                Course(id: 302, termId: 4, userId: 1, name: "Database Systems", credits: 5, average: 90, letterGrade: "AA", gpa: 4.0)
+                Course(id: 301, termId: 4, userId: 1, name: "Algoritmalar", credits: 6, average: 84, letterGrade: "BA", gpa: 3.5),
+                Course(id: 302, termId: 4, userId: 1, name: "Veritabanı Sistemleri", credits: 5, average: 90, letterGrade: "AA", gpa: 4.0)
             ]
         default:
             return []
