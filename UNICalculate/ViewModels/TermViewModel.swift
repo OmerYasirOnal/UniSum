@@ -10,8 +10,16 @@ class TermViewModel: ObservableObject {
     
     // MARK: - Term Operations
     func fetchTerms() {
+        #if DEBUG
+        if DemoMode.isActive {
+            self.terms = DemoData.terms
+            self.isLoading = false
+            self.errorMessage = ""
+            return
+        }
+        #endif
         isLoading = true
-        
+
         networkManager.get(endpoint: "/terms/my-terms", requiresAuth: true) { [weak self] (result: Result<[Term], Error>) in
             DispatchQueue.main.async {
                 self?.handleFetchTermsResponse(result)

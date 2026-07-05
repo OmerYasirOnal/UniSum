@@ -19,6 +19,7 @@
 "delete" = "Delete";
 "ok" = "OK";
 "done" = "Done";
+"add" = "Add";
 "term_format" = "Term %d";
 
 /* Terms and Courses */
@@ -152,3 +153,17 @@
 "picker_weight" = "Weight";
 "label_available_weight" = "Available Weight";
 "nav_select_weight" = "Select Weight";
+
+/* New: empty states, language names, alerts, grade scale */
+"no_courses_yet" = "No courses added yet";
+"no_terms_message" = "Tap the + button to add your first term.";
+"turkish" = "Turkish";
+"english" = "English";
+"alert_warning" = "Warning";
+"alert_ok" = "OK";
+"credits_too_high" = "Credits value is too high.";
+"edit_grade_scale" = "Edit Grade Scale";
+"minimum_score" = "Minimum Score";
+"gpa_value" = "GPA Value";
+"light" = "Light";
+"dark" = "Dark";

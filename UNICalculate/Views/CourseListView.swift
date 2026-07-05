@@ -6,11 +6,20 @@ struct CourseListView: View {
     @State private var selectedCourse: Course? = nil
     @State private var isAddCourseViewVisible = false
     @Environment(\.colorScheme) var colorScheme
-    
+
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottomTrailing) {
+            Color.appBackground.ignoresSafeArea()
+
             mainContent
-            
+
+            FloatingAddButton {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                    isAddCourseViewVisible = true
+                }
+            }
+            .padding(DS.Spacing.lg)
+
             if isAddCourseViewVisible {
                 AddCourseView(
                     isPresented: $isAddCourseViewVisible,
@@ -19,7 +28,8 @@ struct CourseListView: View {
                     termId: term.id,
                     userId: term.userId
                 )
-                .transition(.scale)
+                .transition(.opacity)
+                .zIndex(3)
             }
         }
         .navigationTitle(LocalizedStringKey("courses"))
@@ -43,183 +53,151 @@ struct CourseListView: View {
             }
         }
     }
-    
+
     // MARK: - Main Content
+    @ViewBuilder
     private var mainContent: some View {
-        VStack {
-            if viewModel.isLoading {
-                ProgressView()
-            } else if !viewModel.errorMessage.isEmpty {
-                errorView
-            } else if viewModel.courses.isEmpty {
-                emptyStateView
-            } else {
-                courseList
+        if viewModel.isLoading {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if !viewModel.errorMessage.isEmpty {
+            errorView
+        } else {
+            List {
+                Section {
+                    termHeaderCard.plainCardRow(vertical: DS.Spacing.xs)
+                }
+
+                if viewModel.courses.isEmpty {
+                    emptyStateView.plainCardRow()
+                } else {
+                    Section {
+                        ForEach(viewModel.courses) { course in
+                            courseRow(course: course).plainCardRow()
+                        }
+                        .onDelete { indexSet in handleDelete(at: indexSet) }
+                    }
+                }
+
+                Color.clear
+                    .frame(height: 84)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
             }
-            
-            Spacer()
-            
-            // Her durumda gösterilecek kısım
-            VStack(spacing: 0) {
-                termAverageSection
-                addButton
-                    .padding(.top, 20)
-            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .environment(\.defaultMinListHeaderHeight, 0)
         }
     }
-    
-    // MARK: - Term GPA Section (Değişmedi)
-    private var termAverageSection: some View {
-        VStack(spacing: 12) {
+
+    // MARK: - Term summary header
+    private var termHeaderCard: some View {
+        HStack(spacing: DS.Spacing.lg) {
             if viewModel.isLoadingGPA {
                 ProgressView()
-                    .padding()
+                    .frame(width: 92, height: 92)
             } else {
-                HStack(spacing: 20) {
-                    VStack(alignment: .center, spacing: 4) {
-                        Text(LocalizedStringKey("term_average"))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Text(String(format: "%.2f", viewModel.termGPA))
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.blue)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(.systemBackground))
-                            .shadow(color: Color.black.opacity(0.1), radius: 3)
-                    )
-                    
-                    VStack(alignment: .center, spacing: 4) {
-                        Text(LocalizedStringKey("total_credits"))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Text(String(format: "%.1f", viewModel.totalCredits))
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.blue)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(.systemBackground))
-                            .shadow(color: Color.black.opacity(0.1), radius: 3)
-                    )
-                }
-                .padding(.horizontal)
+                GPARing(gpa: viewModel.termGPA, size: 92, lineWidth: 10)
             }
+
+            VStack(alignment: .leading, spacing: DS.Spacing.sm) {
+                summaryStat(icon: "creditcard.fill",
+                            title: "total_credits",
+                            value: String(format: "%.1f", viewModel.totalCredits))
+                summaryStat(icon: "books.vertical.fill",
+                            title: "courses",
+                            value: "\(viewModel.courses.count)")
+            }
+            Spacer(minLength: 0)
         }
-        .padding(.vertical, 8)
+        .card(padding: DS.Spacing.lg)
     }
-    
-    // MARK: - Ders Listesi
-    private var courseList: some View {
-        List {
-            ForEach(viewModel.courses) { course in
-                courseRow(course: course)
-            }
-            .onDelete { indexSet in
-                handleDelete(at: indexSet)
-            }
+
+    private func summaryStat(icon: String, title: LocalizedStringKey, value: String) -> some View {
+        HStack(spacing: DS.Spacing.sm) {
+            Image(systemName: icon)
+                .font(.subheadline)
+                .foregroundStyle(Color.brandPrimary)
+                .frame(width: 22)
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: DS.Spacing.xs)
+            Text(value)
+                .font(.system(.headline, design: .rounded))
+                .foregroundStyle(.primary)
         }
-        .listStyle(PlainListStyle())
     }
-    
-    // ✅ Güncellenmiş Ders Satırı
+
+    // MARK: - Course row
     private func courseRow(course: Course) -> some View {
-        NavigationLink(destination: CourseDetailView(course: course)) {
-            HStack {
-                // SOL KISIM (Ders Adı, Kredi)
-                VStack(alignment: .leading, spacing: 4) {
-                    // Ders adı
-                    Text(course.name)
-                        .font(.headline)
-                    
-                    // Kredi bilgisi
-                    HStack {
-                        Text(LocalizedStringKey("credit")) // "Kredi"
-                        Text(String(format: "%.1f", course.credits))
-                    }
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                // SAĞ KISIM (Ortalama + Harf Notu/GPA üst üste)
-                VStack(alignment: .trailing, spacing: 4) {
-                    
-                    // 1) Ortalama (Average)
-                    HStack {
-                        Text(LocalizedStringKey("average")) // "Ortalama"
-                        Text(String(format: "%.1f", course.average))
-                            .bold()
-                    }
-                    .font(.subheadline)
-                    
-                    // 2) Harf Notu + GPA
-                    //    - letterGrade ve gpa doluysa göster, aksi halde gizle
-                    // 2) Harf Notu + GPA
-                    if let letter = course.letterGrade {
-                        let gpaValue = course.gpa ?? 0.0
-                        HStack {
-                            Text("\(letter)/\(String(format: "%.2f", gpaValue))")
-                                .bold()
-                                .foregroundColor(.blue)
-                        }
-                        .font(.subheadline)
-                    }
-                }
-            }
-            .padding(.vertical, 8)
-            
+        ZStack {
+            courseCard(course)
+            NavigationLink(destination: CourseDetailView(course: course)) { EmptyView() }
+                .opacity(0)
         }
     }
-    
+
+    private func courseCard(_ course: Course) -> some View {
+        HStack(spacing: DS.Spacing.md) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(course.name)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.leading)
+                HStack(spacing: 4) {
+                    Image(systemName: "creditcard")
+                    Text(String(format: "%.1f", course.credits))
+                    Text(LocalizedStringKey("credits"))
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: DS.Spacing.xs)
+
+            VStack(alignment: .trailing, spacing: 6) {
+                Text(String(format: "%.1f", course.average))
+                    .font(.system(.title3, design: .rounded).weight(.bold))
+                    .foregroundStyle(GradeColor.forScore(course.average))
+                if let letter = course.letterGrade, !letter.isEmpty {
+                    GradeBadge(letter: letter, gpa: course.gpa, compact: true)
+                }
+            }
+        }
+        .card()
+    }
+
+    // MARK: - States
     private var errorView: some View {
-        VStack {
-            Text("Error")
-                .font(.headline)
+        VStack(spacing: DS.Spacing.md) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 46))
+                .foregroundStyle(Color.dangerRed)
             Text(viewModel.errorMessage)
                 .font(.subheadline)
-                .foregroundColor(.red)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
         }
+        .padding(DS.Spacing.xl)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
+
     private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "book.closed")
-                .font(.system(size: 50))
-                .foregroundColor(.gray)
-            Text("Henüz ders eklenmemiş")
-                .font(.headline)
-                .foregroundColor(.gray)
-        }.padding(5)
+        EmptyStateView(
+            systemImage: "book.closed",
+            title: "no_courses_yet",
+            message: "add_new_course"
+        )
     }
-    
-    private var addButton: some View {
-        Button(action: { isAddCourseViewVisible = true }) {
-            Image(systemName: "plus.circle.fill")
-                .resizable()
-                .frame(width: 60, height: 60)
-                .foregroundColor(.accentColor)
-        }
-        .padding(.bottom, 30)
-    }
-    
-    
-    
-    // MARK: - Ders Silme
+
+    // MARK: - Delete
     private func handleDelete(at indexSet: IndexSet) {
         for index in indexSet {
             let course = viewModel.courses[index]
             viewModel.deleteCourse(courseId: course.id) { success in
                 if success {
-                    viewModel.fetchTermGPA(for: term.id) // ✅ Ders silindiğinde term GPA'yı güncelle
+                    viewModel.fetchTermGPA(for: term.id)
                 }
             }
         }

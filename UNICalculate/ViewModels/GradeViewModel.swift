@@ -37,6 +37,13 @@ class GradeViewModel: ObservableObject {
     }
     
     func fetchGrades(forCourse courseId: Int) {
+        #if DEBUG
+        if DemoMode.isActive {
+            self.grades = DemoData.grades(forCourse: courseId)
+            self.objectWillChange.send()
+            return
+        }
+        #endif
         networkManager.get(endpoint: "/grades/courses/\(courseId)", requiresAuth: true) { (result: Result<[Grade], Error>) in
             DispatchQueue.main.async {
                 switch result {
@@ -81,6 +88,9 @@ class GradeViewModel: ObservableObject {
     }
     
     func updateCourseAverage(courseId: Int) {
+        #if DEBUG
+        if DemoMode.isActive { return }
+        #endif
         let average = calculateAverage()
         let parameters: [String: Any] = ["average": average]
         

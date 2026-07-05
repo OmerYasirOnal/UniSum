@@ -10,38 +10,43 @@ struct LoginView: View {
     @FocusState private var focusedField: Field?
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject private var languageManager: LanguageManager
-    
+
     enum Field {
         case email, password
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(.systemBackground).ignoresSafeArea()
-                
-                VStack(spacing: 20) {
-                    // Dil seçici üst toolbar
-                    HStack {
-                        Spacer()
-                        languageSelector
+                AuthBackground()
+
+                ScrollView {
+                    VStack(spacing: DS.Spacing.lg) {
+                        HStack {
+                            Spacer()
+                            languageSelector
+                        }
+
+                        Spacer(minLength: DS.Spacing.xl)
+
+                        AppWordmark()
+                        Text(LocalizedStringKey("welcome_back"))
+                            .font(.system(.title3, design: .rounded).weight(.medium))
+                            .foregroundStyle(.secondary)
+
+                        formCard
+                        loginButton
+                        signupPrompt
+
+                        Spacer(minLength: DS.Spacing.lg)
                     }
-                    .padding(.horizontal)
-                    
-                    Spacer()
-                    
-                    // Ana içerik
-                    welcomeView
-                    formView
-                    forgotPasswordButton
-                    loginButton
-                    signupPrompt
-                    
-                    Spacer()
+                    .padding(.horizontal, DS.Spacing.lg)
+                    .padding(.top, DS.Spacing.xs)
+                    .frame(maxWidth: 520)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal)
-                
-                // Toast mesajı
+                .scrollDismissesKeyboard(.interactively)
+
                 if showToast, let toast = toast {
                     ToastView(toast: toast, isPresented: $showToast)
                 }
@@ -53,104 +58,96 @@ struct LoginView: View {
         .sheet(isPresented: $showForgotPassword) {
             ForgotPasswordView()
         }
-        .fullScreenCover(isPresented: $authViewModel.isAuthenticated) {
-            TermListView()
-        }
     }
-    
-    // Dil seçici component
+
+    // MARK: - Language selector
     private var languageSelector: some View {
         Menu {
-            Button(action: { languageManager.selectedLanguage = "tr" }) {
+            Button { languageManager.selectedLanguage = "tr" } label: {
                 HStack {
                     Text("Türkçe")
-                    if languageManager.selectedLanguage == "tr" {
-                        Image(systemName: "checkmark")
-                    }
+                    if languageManager.selectedLanguage == "tr" { Image(systemName: "checkmark") }
                 }
             }
-            
-            Button(action: { languageManager.selectedLanguage = "en" }) {
+            Button { languageManager.selectedLanguage = "en" } label: {
                 HStack {
                     Text("English")
-                    if languageManager.selectedLanguage == "en" {
-                        Image(systemName: "checkmark")
-                    }
+                    if languageManager.selectedLanguage == "en" { Image(systemName: "checkmark") }
                 }
             }
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Image(systemName: "globe")
                 Text(LocalizedStringKey("language"))
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
             }
-            .padding(.horizontal, 12)
+            .font(.subheadline)
+            .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .background(Color.blue.opacity(0.15))
-            .foregroundColor(.blue)
-            .cornerRadius(20)
+            .foregroundStyle(Color.brandOnTint)
+            .background(Capsule().fill(Color.brandTint))
         }
     }
 
-    // Diğer componentler aynı kalıyor
-    private var welcomeView: some View {
-        Text(LocalizedStringKey("welcome_back"))
-            .font(.system(size: 32, weight: .bold))
-            .padding(.bottom, 20)
-    }
-    
-    private var formView: some View {
-        VStack(spacing: 15) {
-            TextField(LocalizedStringKey("email"), text: $email)
-                .customTextField()
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .autocapitalization(.none)
-                .focused($focusedField, equals: .email)
-            
-            SecureField(LocalizedStringKey("password"), text: $password)
-                .customTextField()
-                .textContentType(.password)
-                .focused($focusedField, equals: .password)
+    // MARK: - Form
+    private var formCard: some View {
+        VStack(spacing: DS.Spacing.md) {
+            IconTextField(systemImage: "envelope", isFocused: focusedField == .email) {
+                TextField(LocalizedStringKey("email"), text: $email)
+                    .textContentType(.emailAddress)
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .focused($focusedField, equals: .email)
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .password }
+            }
+
+            IconTextField(systemImage: "lock", isFocused: focusedField == .password) {
+                SecureField(LocalizedStringKey("password"), text: $password)
+                    .textContentType(.password)
+                    .focused($focusedField, equals: .password)
+                    .submitLabel(.go)
+                    .onSubmit(handleLogin)
+            }
+
+            HStack {
+                Spacer()
+                Button { showForgotPassword = true } label: {
+                    Text(LocalizedStringKey("forgot_password"))
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Color.brandPrimary)
+                }
+            }
         }
+        .padding(.top, DS.Spacing.xs)
     }
-    
-    private var forgotPasswordButton: some View {
-        Button(action: { showForgotPassword = true }) {
-            Text(LocalizedStringKey("forgot_password"))
-                .foregroundColor(.blue)
-                .font(.subheadline)
-        }
-    }
-    
+
     private var loginButton: some View {
         Button(action: handleLogin) {
             Text(LocalizedStringKey("login"))
-                .fontWeight(.semibold)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .shadow(radius: 2)
         }
+        .buttonStyle(PrimaryButtonStyle())
     }
-    
+
     private var signupPrompt: some View {
-        HStack {
+        HStack(spacing: 4) {
             Text(LocalizedStringKey("no_account"))
-            Button(action: { showSignup = true }) {
+                .foregroundStyle(.secondary)
+            Button { showSignup = true } label: {
                 Text(LocalizedStringKey("signup"))
                     .fontWeight(.semibold)
-                    .foregroundColor(.blue)
+                    .foregroundStyle(Color.brandPrimary)
             }
         }
-        .padding(.top, 10)
+        .font(.subheadline)
+        .padding(.top, DS.Spacing.xxs)
     }
-    
+
+    // MARK: - Actions
     private func handleLogin() {
         guard validateForm() else { return }
-        
+
         authViewModel.login(email: email, password: password) { success, errorMessage in
             if success {
                 toast = Toast(message: LocalizedStringKey("login_successful"), type: .success)
@@ -160,7 +157,7 @@ struct LoginView: View {
             showToast = true
         }
     }
-    
+
     private func handleLoginError(_ errorMessage: String?) {
         if let errorMessage = errorMessage {
             switch errorMessage {
@@ -175,33 +172,46 @@ struct LoginView: View {
             toast = Toast(message: LocalizedStringKey("error_unknown"), type: .error)
         }
     }
-    
+
     private func validateForm() -> Bool {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+
         guard !trimmedEmail.isEmpty else {
             showErrorToast(message: "error_email_required")
             return false
         }
-        
+
         guard trimmedEmail.isValidEmail else {
             showErrorToast(message: "error_invalid_email_format")
             return false
         }
-        
+
         guard !trimmedPassword.isEmpty else {
             showErrorToast(message: "error_password_required")
             return false
         }
-        
+
         return true
     }
-    
+
     private func showErrorToast(message: String) {
         toast = Toast(message: LocalizedStringKey(message), type: .error)
         showToast = true
     }
 }
 
-
+/// Soft brand-tinted backdrop shared by the auth screens.
+struct AuthBackground: View {
+    var body: some View {
+        ZStack {
+            Color.appBackground.ignoresSafeArea()
+            LinearGradient(
+                colors: [Color.brandPrimary.opacity(0.16), Color.brandSecondary.opacity(0.05), Color.clear],
+                startPoint: .topLeading,
+                endPoint: .center
+            )
+            .ignoresSafeArea()
+        }
+    }
+}

@@ -120,6 +120,13 @@ class AuthViewModel: ObservableObject {
         }
         
     func checkAuthentication() {
+        #if DEBUG
+        if DemoMode.isActive {
+            self.user = DemoData.user
+            self.isAuthenticated = true
+            return
+        }
+        #endif
         guard let _ = UserDefaults.standard.string(forKey: "authToken"),
               let _ = UserDefaults.standard.string(forKey: "userId") else {
             isAuthenticated = false

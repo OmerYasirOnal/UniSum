@@ -35,8 +35,19 @@ class CourseViewModel: ObservableObject {
     
     // MARK: - Fetch Courses
     func fetchCourses(for termId: Int) {
+        #if DEBUG
+        if DemoMode.isActive {
+            self.courses = DemoData.courses(forTerm: termId)
+            let summary = DemoData.termSummary(forTerm: termId)
+            self.termGPA = summary.gpa
+            self.totalCredits = summary.credits
+            self.isLoading = false
+            self.isLoadingGPA = false
+            return
+        }
+        #endif
         isLoading = true
-        
+
         networkManager.get(
             endpoint: "/terms/\(termId)/courses",
             requiresAuth: true

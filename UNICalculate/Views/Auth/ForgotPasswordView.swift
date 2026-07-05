@@ -8,38 +8,56 @@ struct ForgotPasswordView: View {
     @State private var showToast = false
     @State private var toast: Toast?
     @FocusState private var emailFocused: Bool
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
-                backgroundGradient
-                
+                AuthBackground()
+
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: DS.Spacing.lg) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.brandTint)
+                                .frame(width: 88, height: 88)
+                            Image(systemName: "lock.rotation")
+                                .font(.system(size: 38, weight: .medium))
+                                .foregroundStyle(Color.brandPrimary)
+                        }
+                        .padding(.top, DS.Spacing.xl)
+
                         Text(LocalizedStringKey("reset_password"))
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding(.top, 50)
-                        
+                            .font(.system(size: 28, weight: .heavy, design: .rounded))
+                            .foregroundStyle(.primary)
+
                         Text(LocalizedStringKey("reset_password_instructions"))
-                            .foregroundColor(.white)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                        
-                        TextField(LocalizedStringKey("email"), text: $email)
-                            .customTextField()
-                            .textContentType(.emailAddress)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .focused($emailFocused)
-                            .padding(.horizontal)
-                        
+                            .padding(.horizontal, DS.Spacing.md)
+
+                        IconTextField(systemImage: "envelope", isFocused: emailFocused) {
+                            TextField(LocalizedStringKey("email"), text: $email)
+                                .textContentType(.emailAddress)
+                                .keyboardType(.emailAddress)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                                .focused($emailFocused)
+                                .submitLabel(.go)
+                                .onSubmit(handlePasswordReset)
+                        }
+                        .padding(.top, DS.Spacing.xs)
+
                         resetButton
+
+                        Spacer(minLength: DS.Spacing.lg)
                     }
+                    .padding(.horizontal, DS.Spacing.lg)
+                    .frame(maxWidth: 520)
+                    .frame(maxWidth: .infinity)
                 }
-                .scrollDismissesKeyboard(.immediately)
-                
+                .scrollDismissesKeyboard(.interactively)
+
                 if showToast, let toast = toast {
                     ToastView(toast: toast, isPresented: $showToast)
                 }
@@ -48,68 +66,51 @@ struct ForgotPasswordView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { dismiss() }) {
-                        HStack {
+                        HStack(spacing: 4) {
                             Image(systemName: "chevron.left")
                             Text(LocalizedStringKey("back"))
                         }
-                        .foregroundColor(.white)
+                        .foregroundStyle(Color.brandPrimary)
                     }
                 }
             }
         }
     }
-    
+
     private var resetButton: some View {
         Button(action: handlePasswordReset) {
-            HStack {
+            HStack(spacing: DS.Spacing.xs) {
                 if isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                        .padding(.trailing, 5)
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 }
-                
                 Text(LocalizedStringKey("reset_password"))
-                    .fontWeight(.bold)
             }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.white)
-            .foregroundColor(.blue)
-            .cornerRadius(10)
-            .shadow(radius: 5)
         }
+        .buttonStyle(PrimaryButtonStyle(enabled: isValid() && !isLoading))
         .disabled(!isValid() || isLoading)
-        .opacity(isValid() && !isLoading ? 1 : 0.6)
-        .padding(.horizontal)
+        .opacity(isValid() && !isLoading ? 1 : 0.7)
     }
-    
-    private var backgroundGradient: some View {
-        LinearGradient(
-            gradient: Gradient(colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)]),
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
-    }
-    
+
     private func isValid() -> Bool {
         !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         email.isValidEmail
     }
-    
+
     private func handlePasswordReset() {
+        guard isValid() else { return }
         isLoading = true
         authViewModel.requestPasswordReset(email: email) { success, _ in
             isLoading = false
             if success {
-                // "password_reset_email_sent" lokalizasyon anahtarının
-                // Localizable.strings dosyanızda tanımlı olduğundan emin olun.
                 toast = Toast(message: "password_reset_email_sent", type: .success)
                 showToast = true
-                // 2 saniye bekledikten sonra ForgotPasswordView kapatılarak login ekranına yönlendirilir.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     dismiss()
                 }
+            } else {
+                toast = Toast(message: "error_password_reset_failed", type: .error)
+                showToast = true
             }
         }
     }

@@ -22,6 +22,12 @@ class GradeScaleViewModel: ObservableObject {
     }
     
     private func fetchCustomScales() {
+        #if DEBUG
+        if DemoMode.isActive {
+            self.isLoading = false
+            return
+        }
+        #endif
         isLoading = true
         networkManager.get(
             endpoint: "/grade-scales/courses/\(course.id)",

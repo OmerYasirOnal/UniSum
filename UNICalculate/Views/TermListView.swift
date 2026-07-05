@@ -8,21 +8,24 @@ struct TermListView: View {
     @State private var isAddTermViewVisible = false
     @State private var navigationPath = NavigationPath()
     @Environment(\.colorScheme) var colorScheme
-    
-    // Sınıf seviyelerini belirli sırayla gösterebilmek için
+
+    // Ordered class levels for grouped display.
     private let classLevelOrder: [String] = ["pre", "1", "2", "3", "4"]
-    
+
     // MARK: - Body
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ZStack(alignment: .leading) {
-                mainContent
-                
+            ZStack(alignment: .bottomTrailing) {
+                Color.appBackground.ignoresSafeArea()
+
+                contentView
+
+                FloatingAddButton { showAddTermPanel() }
+                    .padding(DS.Spacing.lg)
+
                 if isAddTermViewVisible {
-                    AddTermPanel(
-                        isVisible: $isAddTermViewVisible,
-                        termViewModel: viewModel
-                    )
+                    AddTermPanel(isVisible: $isAddTermViewVisible, termViewModel: viewModel)
+                        .zIndex(3)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -31,191 +34,201 @@ struct TermListView: View {
             .onAppear { viewModel.fetchTerms() }
         }
     }
-    
-    // MARK: - Main Content
-    private var mainContent: some View {
-        VStack {
-            contentView
-            addButton
-        }
-    }
-    
-    /// İçerik: Yükleniyor, hata, boş liste veya dönemler gruplaması
+
+    // MARK: - Content
+    @ViewBuilder
     private var contentView: some View {
-        VStack(spacing: 0) {
-            if viewModel.isLoading {
-                ProgressView()
-            } else if !viewModel.errorMessage.isEmpty {
-                errorView
-            } else if viewModel.terms.isEmpty {
-                emptyStateView
-            } else {
-                termListView
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    // MARK: - Toolbar
-    private var toolbarContent: some ToolbarContent {
-        Group {
-            ToolbarItem(placement: .navigationBarLeading) {
-                menuButton
-            }
-            
-            ToolbarItem(placement: .principal) {
-                titleView
-            }
+        if viewModel.isLoading {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if !viewModel.errorMessage.isEmpty {
+            errorView
+        } else if viewModel.terms.isEmpty {
+            emptyStateView
+        } else {
+            termList
         }
     }
-    
-    private var menuButton: some View {
-        Button(action: toggleSidebar) {
-            Image(systemName: isSidebarVisible ? "xmark" : "line.horizontal.3")
-                .imageScale(.large)
-                .foregroundColor(.primary)
-                .animation(.easeInOut(duration: 0.3), value: isSidebarVisible)
-        }
-    }
-    
-    private var titleView: some View {
-        Group {
-            if !isSidebarVisible {
-                Text(LocalizedStringKey("your_terms"))
-                    .font(.headline)
-            }
-        }
-    }
-    
-    // MARK: - Gruplanmış Liste
-    private var termListView: some View {
-        // 1) Dönemleri classLevel'a göre grupla
-        let groupedTerms = Dictionary(grouping: viewModel.terms, by: { $0.classLevel })
-        
+
+    private var termList: some View {
+        let grouped = Dictionary(grouping: viewModel.terms, by: { $0.classLevel })
         return List {
-            // 2) Belirlediğimiz sıraya göre her classLevel için Section aç
             ForEach(classLevelOrder, id: \.self) { level in
-                let termsForLevel = groupedTerms[level] ?? []
-                
-                // 3) Bu level’da dönem varsa Section oluştur
+                let termsForLevel = grouped[level] ?? []
                 if !termsForLevel.isEmpty {
-                    Section(header: Text(localizedClassLevelName(for: level))) {
-                        // 4) “Dönem X” satırları
+                    Section {
                         ForEach(termsForLevel) { term in
-                            NavigationLink(destination: CourseListView(term: term)) {
-                                Text(String(format: NSLocalizedString("term_format", comment: ""), term.termNumber))
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-                                    .padding(.vertical, 8)
+                            ZStack {
+                                TermRowCard(term: term)
+                                NavigationLink(destination: CourseListView(term: term)) { EmptyView() }
+                                    .opacity(0)
                             }
+                            .listRowInsets(EdgeInsets(top: 5, leading: DS.Spacing.md, bottom: 5, trailing: DS.Spacing.md))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                         }
-                        // 5) Silme işlemi (Section içinde)
                         .onDelete { offsets in
                             for offset in offsets {
                                 let term = termsForLevel[offset]
                                 viewModel.deleteTerm(termId: term.id) { _ in }
                             }
                         }
+                    } header: {
+                        SectionHeaderLabel(title: classLevelKey(for: level), systemImage: "graduationcap.fill")
+                            .padding(.top, DS.Spacing.xs)
+                            .padding(.bottom, 2)
                     }
                 }
             }
+            // Spacer so the FAB never covers the last row.
+            Color.clear
+                .frame(height: 84)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
         }
-        .listStyle(PlainListStyle())
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .environment(\.defaultMinListHeaderHeight, 0)
     }
-    
-    // MARK: - Yardımcı: class_level -> Localizable
-    private func localizedClassLevelName(for level: String) -> LocalizedStringKey {
-        switch level {
-        case "pre":
-            return "class_level_pre"
-        case "1":
-            return "class_level_1"
-        case "2":
-            return "class_level_2"
-        case "3":
-            return "class_level_3"
-        case "4":
-            return "class_level_4"
-        default:
-            return LocalizedStringKey(level)
+
+    // MARK: - Toolbar
+    private var toolbarContent: some ToolbarContent {
+        Group {
+            ToolbarItem(placement: .navigationBarLeading) {
+                menuButton
+            }
+            ToolbarItem(placement: .principal) {
+                if !isSidebarVisible {
+                    Text(LocalizedStringKey("your_terms"))
+                        .font(.headline)
+                }
+            }
         }
     }
-    
-    // MARK: - Supporting Views
+
+    private var menuButton: some View {
+        Button(action: toggleSidebar) {
+            Image(systemName: isSidebarVisible ? "xmark" : "line.3.horizontal")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Color.brandPrimary)
+        }
+    }
+
+    // MARK: - States
     private var errorView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 50))
-                .foregroundColor(.red)
+        VStack(spacing: DS.Spacing.md) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 46))
+                .foregroundStyle(Color.dangerRed)
             Text(viewModel.errorMessage)
-                .font(.headline)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.red)
-        }
-        .padding()
-    }
-    
-    private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "tray.fill")
-                .font(.system(size: 50))
-                .foregroundColor(.gray)
-            Text(LocalizedStringKey("no_terms"))
                 .font(.subheadline)
-                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
         }
+        .padding(DS.Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
-    private var addButton: some View {
-        Button(action: showAddTermPanel) {
-            Image(systemName: "plus.circle.fill")
-                .resizable()
-                .frame(width: 60, height: 60)
-                .foregroundColor(.accentColor)
-        }
-        .padding(.bottom, 30)
+
+    private var emptyStateView: some View {
+        EmptyStateView(
+            systemImage: "tray.and.arrow.down",
+            title: "no_terms",
+            message: "no_terms_message"
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
-    // MARK: - Sidebar Overlay
+
+    // MARK: - Sidebar overlay
     private var sidebarOverlay: some View {
         Group {
             if isSidebarVisible {
                 ZStack {
-                    Color.black.opacity(0.3)
+                    Color.black.opacity(0.35)
                         .ignoresSafeArea()
                         .onTapGesture(perform: closeSidebar)
-                    
+
                     HStack(spacing: 0) {
                         SidebarView(isVisible: $isSidebarVisible)
                             .environmentObject(authViewModel)
-                            .frame(width: UIScreen.main.bounds.width * 0.75)
+                            .frame(width: UIScreen.main.bounds.width * 0.78)
                         Spacer()
                     }
                 }
                 .transition(.opacity.combined(with: .move(edge: .leading)))
-                .zIndex(2)
+                .zIndex(4)
             }
         }
     }
-    
+
+    // MARK: - Helpers
+    private func classLevelKey(for level: String) -> LocalizedStringKey {
+        classLevelLocalizedKey(level)
+    }
+
     // MARK: - Actions
     private func toggleSidebar() {
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) {
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
             isSidebarVisible.toggle()
         }
     }
-    
+
     private func closeSidebar() {
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.5)) {
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
             isSidebarVisible = false
         }
     }
-    
+
     private func showAddTermPanel() {
-        withAnimation(.spring()) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
             isAddTermViewVisible = true
         }
     }
+}
 
+// MARK: - Term row card
+
+struct TermRowCard: View {
+    let term: Term
+
+    var body: some View {
+        HStack(spacing: DS.Spacing.md) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .fill(Color.brandTint)
+                    .frame(width: 48, height: 48)
+                Image(systemName: "calendar")
+                    .font(.system(size: 21, weight: .semibold))
+                    .foregroundStyle(Color.brandPrimary)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(String(format: NSLocalizedString("term_format", comment: ""), term.termNumber))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Text(classLevelLocalizedKey(term.classLevel))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.bold))
+                .foregroundStyle(Color.textSecondary)
+        }
+        .card()
+    }
+}
+
+// MARK: - Shared class-level localization
+
+func classLevelLocalizedKey(_ level: String) -> LocalizedStringKey {
+    switch level {
+    case "pre": return "class_level_pre"
+    case "1":   return "class_level_1"
+    case "2":   return "class_level_2"
+    case "3":   return "class_level_3"
+    case "4":   return "class_level_4"
+    default:    return LocalizedStringKey(level)
+    }
 }
