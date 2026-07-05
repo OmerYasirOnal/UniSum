@@ -55,7 +55,7 @@ struct SidebarView: View {
             }
 
             VStack(spacing: 2) {
-                Text(authViewModel.user?.email ?? "No Email")
+                Text(authViewModel.user?.email ?? NSLocalizedString("no_email", comment: ""))
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.white)
                     .lineLimit(1)

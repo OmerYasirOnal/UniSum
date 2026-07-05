@@ -5,7 +5,7 @@ class GradeScaleViewModel: ObservableObject {
     @Published var gradeScales: [GradeScale] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    @Published var currentGrade: String = "N/A"
+    @Published var currentGrade: String = NSLocalizedString("not_available", comment: "")
     @Published var currentGPA: Double = 0.0
     
     private let networkManager = NetworkManager.shared
@@ -123,7 +123,7 @@ class GradeScaleViewModel: ObservableObject {
     // Eski “calculateCurrentGrade” fonksiyonu
     func calculateCurrentGrade(average: Double?) {
         guard let avg = average else {
-            currentGrade = "N/A"
+            currentGrade = NSLocalizedString("not_available", comment: "")
             currentGPA = 0.0
             return
         }
@@ -136,7 +136,7 @@ class GradeScaleViewModel: ObservableObject {
             currentGrade = lowestGrade.letter
             currentGPA = lowestGrade.gpa
         } else {
-            currentGrade = "N/A"
+            currentGrade = NSLocalizedString("not_available", comment: "")
             currentGPA = 0.0
         }
     }

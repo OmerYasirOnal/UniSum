@@ -84,7 +84,7 @@
 
 /* Error Messages & Notifications */
 "error_invalid_credentials" = "Invalid credentials.";
-"error_email_exists" = "Email already exists.";
+"error_email_exists" = "This email is already registered. Try logging in instead.";
 "error_no_connection" = "No internet connection.";
 "error_session_expired" = "Session expired. Please log in again.";
 "error_invalid_input" = "Please check your input.";
@@ -101,7 +101,7 @@
 "term_average" = "Term Average";
 "total_credits" = "Total Credits";
 "forgot_password" = "Forgot Password?";
-"no_terms" = "There is no term.";
+"no_terms" = "No Terms Yet";
 "verification_email_sent" = "Verification email sent successfully!";
 
 /* Toasts & Miscellaneous */
@@ -121,7 +121,7 @@
 "new_password" = "New Password";
 "confirm_password" = "Confirm Password";
 "error_passwords_do_not_match" = "Passwords do not match.";
-"reset_password_instructions" = "Enter the email address you want to reset your password.";
+"reset_password_instructions" = "Enter the email address of the account whose password you want to reset.";
 
 /* Other */
 "system_default" = "default";
@@ -145,13 +145,13 @@
 "section_score_and_weight" = "Score and Weight";
 "label_score" = "Score";
 "label_weight" = "Weight";
-"label_available" = "Available";
+"label_available" = "Remaining";
 
 /* Navigation Titles and Pickers */
 "picker_score" = "Score";
 "nav_select_score" = "Select Score";
 "picker_weight" = "Weight";
-"label_available_weight" = "Available Weight";
+"label_available_weight" = "Remaining Weight";
 "nav_select_weight" = "Select Weight";
 
 /* New: empty states, language names, alerts, grade scale */
@@ -167,3 +167,22 @@
 "gpa_value" = "GPA Value";
 "light" = "Light";
 "dark" = "Dark";
+
+/* Signup: location & pickers */
+"country" = "Country";
+"city" = "City";
+"search" = "Search";
+"signup_success_verify" = "Your account has been created! Please tap the verification link we sent to your email address.";
+"error_country_required" = "Please select a country.";
+"error_city_required" = "Please select a city.";
+
+/* Network & system errors */
+"error_user_id_not_found" = "User ID not found. Please log in again.";
+"no_email" = "No Email";
+"not_available" = "N/A";
+"error_invalid_url" = "Invalid URL.";
+"error_no_response" = "No response from the server. Check your internet connection.";
+"error_no_data" = "No data received.";
+"error_invalid_parameters" = "Invalid request. Please check your details.";
+"error_decoding" = "Could not read the server response.";
+"error_bad_response" = "Server error (Code: %d). Please try again later.";

@@ -140,13 +140,13 @@ enum NetworkError: LocalizedError {
     
     var errorDescription: String? {
         switch self {
-        case .invalidURL: return "Geçersiz URL"
-        case .noResponse: return "Sunucudan yanıt alınamadı"
-        case .noData: return "Veri alınamadı"
-        case .invalidParameters: return "Geçersiz parametreler"
-        case .decodingError: return "Veri çözümlenemedi"
-        case .badResponse(let code): return "Sunucu hatası (Kod: \(code))"
-        case .unauthorized: return "Oturum süresi doldu. Lütfen tekrar giriş yapın"
+        case .invalidURL: return NSLocalizedString("error_invalid_url", comment: "")
+        case .noResponse: return NSLocalizedString("error_no_response", comment: "")
+        case .noData: return NSLocalizedString("error_no_data", comment: "")
+        case .invalidParameters: return NSLocalizedString("error_invalid_parameters", comment: "")
+        case .decodingError: return NSLocalizedString("error_decoding", comment: "")
+        case .badResponse(let code): return String(format: NSLocalizedString("error_bad_response", comment: ""), code)
+        case .unauthorized: return NSLocalizedString("error_session_expired", comment: "")
         }
     }
 }

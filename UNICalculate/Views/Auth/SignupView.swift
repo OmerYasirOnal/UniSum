@@ -8,14 +8,14 @@ struct SignupView: View {
     @State private var password = ""
     @State private var university = ""
     @State private var department = ""
+    @State private var city = ""
+    @State private var country = "Türkiye"
     @State private var isLoading = false
     @State private var showToast = false
     @State private var toast: Toast?
     @FocusState private var focusedField: Field?
 
-    enum Field {
-        case email, password, university, department
-    }
+    enum Field { case email, password }
 
     var body: some View {
         NavigationStack {
@@ -24,16 +24,14 @@ struct SignupView: View {
 
                 ScrollView {
                     VStack(spacing: DS.Spacing.lg) {
-                        AppLogoMark(size: 60)
-                            .padding(.top, DS.Spacing.md)
-
+                        AppLogoMark(size: 56)
+                            .padding(.top, DS.Spacing.sm)
                         Text(LocalizedStringKey("create_account"))
-                            .font(.system(size: 28, weight: .heavy, design: .rounded))
+                            .font(.system(size: 26, weight: .heavy, design: .rounded))
                             .foregroundStyle(.primary)
 
                         formCard
                         signupButton
-
                         Spacer(minLength: DS.Spacing.lg)
                     }
                     .padding(.horizontal, DS.Spacing.lg)
@@ -74,28 +72,16 @@ struct SignupView: View {
                     .submitLabel(.next)
                     .onSubmit { focusedField = .password }
             }
-
             IconTextField(systemImage: "lock", isFocused: focusedField == .password) {
                 SecureField(LocalizedStringKey("password"), text: $password)
                     .textContentType(.newPassword)
                     .focused($focusedField, equals: .password)
-                    .submitLabel(.next)
-                    .onSubmit { focusedField = .university }
-            }
-
-            IconTextField(systemImage: "building.columns", isFocused: focusedField == .university) {
-                TextField(LocalizedStringKey("university"), text: $university)
-                    .textContentType(.organizationName)
-                    .focused($focusedField, equals: .university)
-                    .submitLabel(.next)
-                    .onSubmit { focusedField = .department }
-            }
-
-            IconTextField(systemImage: "book", isFocused: focusedField == .department) {
-                TextField(LocalizedStringKey("department"), text: $department)
-                    .focused($focusedField, equals: .department)
                     .submitLabel(.done)
             }
+            SearchablePicker(placeholder: "country", systemImage: "globe", options: SignupData.countries, selection: $country)
+            SearchablePicker(placeholder: "city", systemImage: "mappin.and.ellipse", options: SignupData.cities, selection: $city)
+            SearchablePicker(placeholder: "university", systemImage: "building.columns", options: SignupData.universities, selection: $university)
+            SearchablePicker(placeholder: "department", systemImage: "book", options: SignupData.departments, selection: $department)
         }
         .padding(.top, DS.Spacing.xs)
     }
@@ -104,8 +90,7 @@ struct SignupView: View {
         Button(action: handleSignup) {
             HStack(spacing: DS.Spacing.xs) {
                 if isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .white))
                 }
                 Text(LocalizedStringKey("signup"))
             }
@@ -117,30 +102,26 @@ struct SignupView: View {
     }
 
     private func isFormValid() -> Bool {
-        return !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-               !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-               !university.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-               !department.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !email.trimmed.isEmpty && !password.trimmed.isEmpty &&
+        !university.isEmpty && !department.isEmpty && !city.isEmpty && !country.isEmpty
     }
 
     private func handleSignup() {
         guard validateForm() else { return }
-
         isLoading = true
         authViewModel.signup(
-            email: email,
+            email: email.trimmed,
             password: password,
             university: university,
-            department: department
+            department: department,
+            city: city,
+            country: country
         ) { success, messageKey in
             isLoading = false
             if success {
-                toast = Toast(message: LocalizedStringKey(messageKey ?? "verification_email_sent"), type: .success)
+                toast = Toast(message: LocalizedStringKey("signup_success_verify"), type: .success)
                 showToast = true
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    dismiss()
-                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { dismiss() }
             } else {
                 toast = Toast(message: LocalizedStringKey(messageKey ?? "error_unknown"), type: .error)
                 showToast = true
@@ -149,33 +130,15 @@ struct SignupView: View {
     }
 
     private func validateForm() -> Bool {
-        let trimmedEmail = email.trimmed
-        let trimmedPassword = password.trimmed
-
-        if !trimmedEmail.isNotEmpty {
-            toast = Toast(message: LocalizedStringKey("error_email_required"), type: .error)
-            showToast = true
-            return false
-        }
-
-        if !trimmedEmail.isValidEmail {
-            toast = Toast(message: LocalizedStringKey("error_invalid_email_format"), type: .error)
-            showToast = true
-            return false
-        }
-
-        if !trimmedPassword.isNotEmpty {
-            toast = Toast(message: LocalizedStringKey("error_password_required"), type: .error)
-            showToast = true
-            return false
-        }
-
-        if !trimmedPassword.isValidPassword {
-            toast = Toast(message: LocalizedStringKey("error_password_too_short"), type: .error)
-            showToast = true
-            return false
-        }
-
+        func fail(_ key: String) { toast = Toast(message: LocalizedStringKey(key), type: .error); showToast = true }
+        if !email.trimmed.isNotEmpty { fail("error_email_required"); return false }
+        if !email.trimmed.isValidEmail { fail("error_invalid_email_format"); return false }
+        if !password.trimmed.isNotEmpty { fail("error_password_required"); return false }
+        if !password.trimmed.isValidPassword { fail("error_password_too_short"); return false }
+        if country.isEmpty { fail("error_country_required"); return false }
+        if city.isEmpty { fail("error_city_required"); return false }
+        if university.isEmpty { fail("error_university_required"); return false }
+        if department.isEmpty { fail("error_department_required"); return false }
         return true
     }
 }
@@ -186,18 +149,9 @@ extension String {
         let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
         return emailPredicate.evaluate(with: self)
     }
-
-    var isNotEmpty: Bool {
-        !self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    var isValidPassword: Bool {
-        count >= 6
-    }
-
-    var trimmed: String {
-        self.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
+    var isNotEmpty: Bool { !self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    var isValidPassword: Bool { count >= 6 }
+    var trimmed: String { self.trimmingCharacters(in: .whitespacesAndNewlines) }
 }
 
 struct SignupResponse: Codable {

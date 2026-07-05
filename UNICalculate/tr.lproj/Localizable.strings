@@ -23,7 +23,7 @@
 
 /* Dönem ve Dersler */
 "terms" = "Dönemler";
-"your_terms" = "Dönemler";
+"your_terms" = "Dönemleriniz";
 "no_terms_available" = "Dönem Bulunamadı";
 "add_new_term" = "Yeni Dönem Ekle";
 "term_number" = "Dönem:";
@@ -83,7 +83,7 @@
 
 /* Hata Mesajları & Bildirimler */
 "error_invalid_credentials" = "Geçersiz kimlik bilgileri.";
-"error_email_exists" = "Bu e-posta zaten kayıtlı.";
+"error_email_exists" = "Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyin.";
 "error_no_connection" = "Bağlantı yok.";
 "error_session_expired" = "Oturum süresi doldu. Lütfen tekrar giriş yapın.";
 "error_invalid_input" = "Lütfen girişlerinizi kontrol edin.";
@@ -100,7 +100,7 @@
 "term_average" = "Dönem Not Ortalaması";
 "total_credits" = "Toplam Kredi";
 "forgot_password" = "Şifremi Unuttum?";
-"no_terms" = "Mevcut dönem bulunmamakta.";
+"no_terms" = "Henüz Dönem Yok";
 "verification_email_sent" = "Doğrulama e-postası başarıyla gönderildi!";
 
 /* Bildirimler & Diğer */
@@ -120,7 +120,7 @@
 "new_password" = "Yeni Şifre";
 "confirm_password" = "Şifreyi Onayla";
 "error_passwords_do_not_match" = "Şifreler eşleşmiyor.";
-"reset_password_instructions" = "Şifresini sıfırlamak istediğiniz, mail adresini giriniz.";
+"reset_password_instructions" = "Şifresini sıfırlamak istediğiniz hesabın e-posta adresini giriniz.";
 "system_default" = "varsayılan";
 "account_information" = "Hesap Bilgileri";
 
@@ -165,4 +165,23 @@
 "gpa_value" = "GPA Değeri";
 "light" = "Açık";
 "dark" = "Koyu";
+
+/* Kayıt: konum & seçiciler */
+"country" = "Ülke";
+"city" = "Şehir";
+"search" = "Ara";
+"signup_success_verify" = "Hesabınız oluşturuldu! Lütfen e-posta adresinize gönderdiğimiz doğrulama bağlantısına tıklayın.";
+"error_country_required" = "Lütfen ülke seçiniz.";
+"error_city_required" = "Lütfen şehir seçiniz.";
+
+/* Ağ & sistem hataları */
+"error_user_id_not_found" = "Kullanıcı kimliği bulunamadı. Lütfen tekrar giriş yapın.";
+"no_email" = "E-posta yok";
+"not_available" = "—";
+"error_invalid_url" = "Geçersiz adres.";
+"error_no_response" = "Sunucudan yanıt alınamadı. İnternet bağlantınızı kontrol edin.";
+"error_no_data" = "Veri alınamadı.";
+"error_invalid_parameters" = "Geçersiz istek. Lütfen bilgileri kontrol edin.";
+"error_decoding" = "Sunucu yanıtı çözümlenemedi.";
+"error_bad_response" = "Sunucu hatası (Kod: %d). Lütfen daha sonra tekrar deneyin.";
 

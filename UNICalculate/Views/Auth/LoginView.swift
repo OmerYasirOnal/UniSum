@@ -159,18 +159,10 @@ struct LoginView: View {
     }
 
     private func handleLoginError(_ errorMessage: String?) {
-        if let errorMessage = errorMessage {
-            switch errorMessage {
-            case "error_email_not_verified":
-                toast = Toast(message: LocalizedStringKey("error_email_not_verified"), type: .error)
-            case "error_invalid_credentials":
-                toast = Toast(message: LocalizedStringKey("error_invalid_credentials"), type: .error)
-            default:
-                toast = Toast(message: LocalizedStringKey("error_unknown"), type: .error)
-            }
-        } else {
-            toast = Toast(message: LocalizedStringKey("error_unknown"), type: .error)
-        }
+        // errorMessage is already a valid localization key from AuthViewModel.parseError
+        // (error_no_connection, error_session_expired, error_email_exists, ...), so show it
+        // directly instead of collapsing everything to "error_unknown".
+        toast = Toast(message: LocalizedStringKey(errorMessage ?? "error_unknown"), type: .error)
     }
 
     private func validateForm() -> Bool {

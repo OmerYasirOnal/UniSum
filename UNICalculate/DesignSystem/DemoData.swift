@@ -27,7 +27,9 @@ enum DemoData {
         id: 1,
         email: "elif.demir@ogr.edu.tr",
         university: "Fatih Sultan Mehmet Üniversitesi",
-        department: "Bilgisayar Mühendisliği"
+        department: "Bilgisayar Mühendisliği",
+        city: "İstanbul",
+        country: "Türkiye"
     )
 
     static let terms: [Term] = [

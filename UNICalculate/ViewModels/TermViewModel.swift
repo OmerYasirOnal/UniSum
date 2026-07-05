@@ -29,7 +29,7 @@ class TermViewModel: ObservableObject {
     
     func addTerm(classLevel: String, termNumber: Int) {
         guard let userId = UserDefaults.standard.string(forKey: "userId") else {
-            self.errorMessage = "Kullanıcı kimliği bulunamadı"
+            self.errorMessage = NSLocalizedString("error_user_id_not_found", comment: "")
             return
         }
         
@@ -102,7 +102,7 @@ class TermViewModel: ObservableObject {
                     name: Notification.Name("TokenExpired"),
                     object: nil
                 )
-                errorMessage = "Oturum süresi doldu. Lütfen tekrar giriş yapın."
+                errorMessage = NSLocalizedString("error_session_expired", comment: "")
             default:
                 errorMessage = error.localizedDescription
             }

@@ -50,12 +50,14 @@ class AuthViewModel: ObservableObject {
     
     
     
-    func signup(email: String, password: String, university: String, department: String, completion: @escaping (Bool, String?) -> Void) {
+    func signup(email: String, password: String, university: String, department: String, city: String, country: String, completion: @escaping (Bool, String?) -> Void) {
             let parameters = [
                 "email": email,
                 "password": password,
                 "university": university,
-                "department": department
+                "department": department,
+                "city": city,
+                "country": country
             ]
             
             networkManager.post(endpoint: "/auth/signup", parameters: parameters) { (result: Result<SignupResponse, Error>) in
@@ -63,11 +65,14 @@ class AuthViewModel: ObservableObject {
                     switch result {
                     case .success(let response):
                         if response.success {
-                            // Başarılı durumda hata mesajı set edilmez.
-                            completion(true, response.message)
+                            // Başarı: mesaj yerine sabit yerelleştirilmiş anahtar kullanılır.
+                            completion(true, "signup_success_verify")
                         } else {
-                            self.errorMessageKey = LocalizedStringKey(response.message)
-                            completion(false, response.message)
+                            // Sunucudan gelen ham metni doğrudan anahtar sanma; bilinen
+                            // duruma eşle, tanınmıyorsa yerelleştirilmiş genel mesaja düş.
+                            let key = self.mapSignupMessage(response.message)
+                            self.errorMessageKey = LocalizedStringKey(key)
+                            completion(false, key)
                         }
                     case .failure(let error):
                         let errorMessage = self.parseError(error)
@@ -163,6 +168,28 @@ class AuthViewModel: ObservableObject {
             return "error_unknown"
         }
     
+    /// Maps a signup server message to a known localization key.
+    /// Accepts either an exact strings-file key or common human-readable server prose,
+    /// falling back to a generic localized error so raw/untranslated text is never shown.
+    private func mapSignupMessage(_ raw: String) -> String {
+        let knownKeys: Set<String> = [
+            "error_email_exists", "error_invalid_input", "error_email_required",
+            "error_password_required", "error_password_too_short",
+            "error_email_password_required", "error_unknown"
+        ]
+        if knownKeys.contains(raw) { return raw }
+
+        let lowered = raw.lowercased()
+        if lowered.contains("already") || lowered.contains("exist")
+            || lowered.contains("kayıt") || lowered.contains("kullanımda") {
+            return "error_email_exists"
+        }
+        if lowered.contains("password") || lowered.contains("şifre") {
+            return "error_password_too_short"
+        }
+        return "error_invalid_input"
+    }
+
     private func setError(_ key: String) {
         errorMessageKey = LocalizedStringKey(key)
     }
