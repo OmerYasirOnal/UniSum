@@ -17,7 +17,7 @@ struct Course: Identifiable, Codable, Equatable {
         case name
         case credits
         case average
-        case letterGrade = "letter_grade"
+        case letterGrade = "letterGrade"
         case gpa
     }
     

@@ -5,7 +5,13 @@ import SwiftUI
 struct UNICalculateApp: App {
     @StateObject private var languageManager = LanguageManager()
     @State private var languageChanged = false
-    
+
+    init() {
+        #if DEBUG
+        if SmokeTest.isActive { SmokeTest.run() }
+        #endif
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

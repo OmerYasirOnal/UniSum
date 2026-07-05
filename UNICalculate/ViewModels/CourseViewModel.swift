@@ -20,6 +20,11 @@ struct CourseGPAResponse: Codable {
     let letterGrade: String
 }
 
+// Backend `/courses/term/:termId` returns { courses: [...], term: {...} }.
+struct CoursesListResponse: Codable {
+    let courses: [Course]
+}
+
 
 class CourseViewModel: ObservableObject {
     @Published var courses: [Course] = []
@@ -49,13 +54,14 @@ class CourseViewModel: ObservableObject {
         isLoading = true
 
         networkManager.get(
-            endpoint: "/terms/\(termId)/courses",
+            endpoint: "/courses/term/\(termId)",
             requiresAuth: true
-        ) { [weak self] (result: Result<[Course], Error>) in
+        ) { [weak self] (result: Result<CoursesListResponse, Error>) in
             DispatchQueue.main.async {
                 self?.isLoading = false
                 switch result {
-                case .success(let courses):
+                case .success(let response):
+                    let courses = response.courses
                     self?.courses = courses
                     self?.fetchTermGPA(for: termId)
 
@@ -63,7 +69,7 @@ class CourseViewModel: ObservableObject {
                     for course in courses {
                         self?.updateGPA(for: course.id)
                     }
-                    
+
                 case .failure(let error):
                     self?.errorMessage = error.localizedDescription
                 }
@@ -127,7 +133,7 @@ class CourseViewModel: ObservableObject {
         ]
         
         networkManager.post(
-            endpoint: "/terms/\(termId)/courses",
+            endpoint: "/courses/term/\(termId)",
             parameters: parameters,
             requiresAuth: true
         ) { [weak self] (result: Result<Course, Error>) in

@@ -44,7 +44,7 @@ class GradeViewModel: ObservableObject {
             return
         }
         #endif
-        networkManager.get(endpoint: "/grades/courses/\(courseId)", requiresAuth: true) { (result: Result<[Grade], Error>) in
+        networkManager.get(endpoint: "/grades/courses/\(courseId)/grades", requiresAuth: true) { (result: Result<[Grade], Error>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetchedGrades):
@@ -65,7 +65,7 @@ class GradeViewModel: ObservableObject {
             "weight": weight
         ]
         
-        networkManager.post(endpoint: "/grades", parameters: parameters, requiresAuth: true) { (result: Result<Grade, Error>) in
+        networkManager.post(endpoint: "/grades/courses/\(courseId)/grades", parameters: parameters, requiresAuth: true) { (result: Result<Grade, Error>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let newGrade):
@@ -118,7 +118,7 @@ class GradeViewModel: ObservableObject {
         grades.removeAll { $0.id == gradeId }
         
         networkManager.delete(
-            endpoint: "/grades/\(gradeId)",
+            endpoint: "/grades/grades/\(gradeId)",
             requiresAuth: true
         ) { [weak self] result in
             DispatchQueue.main.async {
